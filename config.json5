@@ -1,0 +1,28 @@
+{
+  listen: ':81',
+  default: "192.168.31.9:5900",
+  timeout: 1000,
+  connect_timeout: 1000,
+  protocols: [
+    {
+      name: "ssh",
+      service: "prefix",
+      addr: "127.0.0.1:5000",
+      patterns: ["SSH"]
+    },
+    {
+      name: "vnc",
+      service: "prefix",
+      addr: "127.0.0.1:5900",
+      patterns: ["RFB "]
+    },
+    {
+      name: "http",
+      service: "regex",
+      addr: "127.0.0.1:8080",
+      min_len: 4,
+      max_len: 7,
+      patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
+    },
+  ]
+}

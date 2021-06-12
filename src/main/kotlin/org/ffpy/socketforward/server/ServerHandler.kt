@@ -37,6 +37,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
 
         // 连接后一段时间内没有数据则直接转发到默认地址
         firstReadTimeout = timer.newTimeout({
+            log.info("等待数据超时，转发到默认地址")
             connect(config.default, null, ctx.channel())
         }, config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
     }

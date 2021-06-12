@@ -9,21 +9,21 @@
   connect_timeout: 1000,
   // 转发协议配置
   protocols: [
-//    // 示例
-//    {
-//      // 名称
-//      name: "http",
-//      // 类型，可选值: prefix(前缀匹配), regex(正则匹配)
-//      type: "regex",
-//      // 转发地址
-//      addr: "127.0.0.1:8080",
-//      // 匹配最短字节数，regex类型才有效
-//      min_len: 4,
-//      // 匹配最长字节数，regex类型才有效
-//      max_len: 7,
-//      // 匹配字符串
-//      patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
-//    },
+    //    // 示例
+    //    {
+    //      // 名称
+    //      name: "http",
+    //      // 类型，可选值: prefix(前缀匹配), regex(正则匹配)
+    //      type: "regex",
+    //      // 转发地址
+    //      addr: "127.0.0.1:8080",
+    //      // 匹配最短字节数，regex类型才有效
+    //      min_len: 4,
+    //      // 匹配最长字节数，regex类型才有效
+    //      max_len: 7,
+    //      // 匹配字符串
+    //      patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
+    //    },
     {
       name: "ssh",
       type: "prefix",
@@ -38,11 +38,9 @@
     },
     {
       name: "http",
-      type: "regex",
+      type: "prefix",
       addr: "127.0.0.1:8080",
-      min_len: 4,
-      max_len: 7,
-      patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
-    },
+      patterns: ["GET ", "POST ", "PUT ", "DELETE ", "HEAD ", "OPTIONS "]
+    }
   ]
 }

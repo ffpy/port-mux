@@ -1,24 +1,44 @@
 {
+  // 监听地址
   listen: ":8200",
+  // 默认转发地址
   default: "192.168.31.9:5900",
+  // 转发首次读取超时时间(毫秒)
   read_timeout: 1000,
+  // 连接转发地址超时时间(毫秒)
   connect_timeout: 1000,
+  // 转发协议配置
   protocols: [
+//    // 示例
+//    {
+//      // 名称
+//      name: "http",
+//      // 类型，可选值: prefix(前缀匹配), regex(正则匹配)
+//      type: "regex",
+//      // 转发地址
+//      addr: "127.0.0.1:8080",
+//      // 匹配最短字节数，regex类型才有效
+//      min_len: 4,
+//      // 匹配最长字节数，regex类型才有效
+//      max_len: 7,
+//      // 匹配字符串
+//      patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
+//    },
     {
       name: "ssh",
-      service: "prefix",
+      type: "prefix",
       addr: "127.0.0.1:5000",
       patterns: ["SSH"]
     },
     {
       name: "vnc",
-      service: "prefix",
+      type: "prefix",
       addr: "127.0.0.1:5900",
       patterns: ["RFB "]
     },
     {
       name: "http",
-      service: "regex",
+      type: "regex",
       addr: "127.0.0.1:8080",
       min_len: 4,
       max_len: 7,

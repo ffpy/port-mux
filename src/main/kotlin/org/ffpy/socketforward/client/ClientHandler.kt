@@ -7,11 +7,15 @@ import io.netty.channel.ChannelInboundHandlerAdapter
 import org.ffpy.socketforward.util.DebugUtils
 import org.slf4j.LoggerFactory
 
+/**
+ * 目标连接处理器
+ */
 class ClientHandler : ChannelInboundHandlerAdapter() {
     companion object {
         private val log = LoggerFactory.getLogger(ClientHandler::class.java)
     }
 
+    /** 对应的源连接 */
     private lateinit var serverChannel: Channel
 
     override fun channelActive(ctx: ChannelHandlerContext) {
@@ -26,7 +30,7 @@ class ClientHandler : ChannelInboundHandlerAdapter() {
     }
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
-        DebugUtils.debugData(log, msg as ByteBuf, ctx)
+        DebugUtils.logData(log, msg as ByteBuf, ctx)
         serverChannel.writeAndFlush(msg)
     }
 
@@ -36,6 +40,7 @@ class ClientHandler : ChannelInboundHandlerAdapter() {
     }
 
     override fun userEventTriggered(ctx: ChannelHandlerContext, evt: Any?) {
+        // 绑定源连接
         if (evt is Channel) {
             serverChannel = evt
         }

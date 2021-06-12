@@ -24,8 +24,10 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
     /** 转发目标连接 */
     private var clientChannel: Channel? = null
 
+    /** 转发协议列表 */
     private val protocols = config.protocols.map { Protocols.create(it) }
 
+    /** 首次读取超时检查定时器 */
     private var firstReadTimeout: Timeout? = null
 
     override fun channelActive(ctx: ChannelHandlerContext) {
@@ -42,11 +44,11 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
         cancelFirstTimeout()
 
-        DebugUtils.debugData(log, msg as ByteBuf, ctx)
+        DebugUtils.logData(log, msg as ByteBuf, ctx)
 
         val c = clientChannel
         if (c == null) {
-            val address = matchProtocol(msg)
+            val address = matchProtocol(msg, ctx)
             connect(address, msg, ctx.channel())
         } else {
             c.writeAndFlush(msg)
@@ -63,6 +65,12 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         ctx.close()
     }
 
+    /**
+     * 连接转发地址
+     * @param address 转发地址
+     * @param msg 首次读取数据
+     * @param serverChannel 源连接
+     */
     private fun connect(address: String, msg: Any?, serverChannel: Channel) {
         if (address.isEmpty()) {
             log.info("找不到转发地址")
@@ -90,6 +98,9 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         })
     }
 
+    /**
+     * 关闭首次读取超时检查定时器
+     */
     private fun cancelFirstTimeout() {
         firstReadTimeout?.let {
             it.cancel()
@@ -97,10 +108,17 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         }
     }
 
-    private fun matchProtocol(buf: ByteBuf): String {
+    /**
+     * 匹配转发协议
+     */
+    private fun matchProtocol(buf: ByteBuf, ctx: ChannelHandlerContext): String {
         for (protocol in protocols) {
-            if (protocol.match(buf)) return protocol.config.addr
+            if (protocol.match(buf)) {
+                log.info("{}匹配协议: {}", ctx.channel().remoteAddress(), protocol.config.name)
+                return protocol.config.addr
+            }
         }
+        log.info("{}匹配失败，转发到默认地址", ctx.channel().remoteAddress())
         return config.default
     }
 }

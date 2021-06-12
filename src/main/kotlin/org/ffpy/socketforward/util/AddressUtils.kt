@@ -24,13 +24,10 @@ object AddressUtils {
     }
 
     /**
-     * 检查地址格式是否正确
+     * 校验地址格式是否正确
+     *
      * @throws IllegalArgumentException 如果地址格式不正确
+     * @return true为正确，false为不正确
      */
-    @Throws(IllegalArgumentException::class)
-    fun matchAddress(addr: String) {
-        if (!addr.matches(addressRegex)) {
-            throw IllegalArgumentException("地址格式不正确: $addr")
-        }
-    }
+    fun validAddress(addr: String): Boolean = addr.matches(addressRegex)
 }

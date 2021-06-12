@@ -5,9 +5,19 @@ import io.netty.channel.ChannelHandlerContext
 import org.ffpy.socketforward.commandparam.CommandParams.param
 import org.slf4j.Logger
 
+/**
+ * Debug工具类
+ */
 object DebugUtils {
 
-    fun debugData(log: Logger, buf: ByteBuf, ctx: ChannelHandlerContext) {
+    /**
+     * 打印转发数据，只有在命令行加了-debug参数后才会打印
+     *
+     * @param log [Logger]
+     * @param buf 要打印的数据
+     * @param ctx 发送数据的对象
+     */
+    fun logData(log: Logger, buf: ByteBuf, ctx: ChannelHandlerContext) {
         val debug = param.debug
         if (debug.isNotEmpty()) {
             val data = when (debug) {

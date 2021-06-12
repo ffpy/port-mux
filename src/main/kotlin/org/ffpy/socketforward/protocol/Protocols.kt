@@ -2,7 +2,7 @@ package org.ffpy.socketforward.protocol
 
 import org.ffpy.socketforward.config.ProtocolConfig
 
-enum class Protocols(private val service: String, private val factory: (ProtocolConfig) -> Protocol) {
+enum class Protocols(val type: String, private val factory: (ProtocolConfig) -> Protocol) {
 
     PREFIX("prefix", { PrefixProtocol(it) }),
 
@@ -18,11 +18,11 @@ enum class Protocols(private val service: String, private val factory: (Protocol
         @Throws(Exception::class)
         fun create(config: ProtocolConfig): Protocol {
             for (item in values()) {
-                if (item.service == config.service) {
+                if (item.type == config.type) {
                     return item.factory(config)
                 }
             }
-            throw Exception("未知的Protocol: ${config.service}")
+            throw Exception("未知的Protocol: ${config.type}")
         }
     }
 }

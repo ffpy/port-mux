@@ -11,12 +11,18 @@ import io.netty.channel.socket.nio.NioSocketChannel
 import org.ffpy.socketforward.config.Configs
 import java.net.SocketAddress
 
+/**
+ * 目标连接管理器
+ */
 object ClientManager {
 
     private var clientBootstrap: Bootstrap? = null
 
     private var clientGroup: EventLoopGroup? = null
 
+    /**
+     * 初始化
+     */
     fun init() {
         val b = Bootstrap()
         val group = NioEventLoopGroup()
@@ -36,11 +42,19 @@ object ClientManager {
         clientGroup = group
     }
 
+    /**
+     * 连接到指定地址
+     * @param address 连接地址
+     * @return 对应的[ChannelFuture]
+     */
     fun connect(address: SocketAddress): ChannelFuture {
         val b = clientBootstrap ?: throw IllegalStateException("还没有初始化")
         return b.connect(address)
     }
 
+    /**
+     * 停止服务
+     */
     fun shutdown() {
         clientBootstrap = null
         clientGroup?.shutdownGracefully()

@@ -1,17 +1,21 @@
-package org.ffpy.socketforward
+package org.ffpy.socketforward.server
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.*
 import io.netty.util.HashedWheelTimer
 import io.netty.util.Timeout
+import org.ffpy.socketforward.client.ClientManager
+import org.ffpy.socketforward.config.Configs.config
+import org.ffpy.socketforward.protocol.Protocols
 import org.ffpy.socketforward.util.AddressUtils
+import org.ffpy.socketforward.util.DebugUtils
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 /**
  * 转发处理器
  */
-class ServerHandler(private val config: Config) : ChannelInboundHandlerAdapter() {
+class ServerHandler : ChannelInboundHandlerAdapter() {
     companion object {
         private val log = LoggerFactory.getLogger(ServerHandler::class.java)
         private val timer = HashedWheelTimer(500, TimeUnit.MILLISECONDS, 64)
@@ -27,7 +31,7 @@ class ServerHandler(private val config: Config) : ChannelInboundHandlerAdapter()
     override fun channelActive(ctx: ChannelHandlerContext) {
         super.channelActive(ctx)
 
-        log.info("${ctx.channel().remoteAddress()}连接成功")
+        log.info("${ctx.channel().remoteAddress()}新连接")
 
         // 连接后一段时间内没有数据则直接转发到默认地址
         firstReadTimeout = timer.newTimeout({
@@ -38,9 +42,11 @@ class ServerHandler(private val config: Config) : ChannelInboundHandlerAdapter()
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
         cancelFirstTimeout()
 
+        DebugUtils.debugData(log, msg as ByteBuf, ctx)
+
         val c = clientChannel
         if (c == null) {
-            val address = matchProtocol(msg as ByteBuf)
+            val address = matchProtocol(msg)
             connect(address, msg, ctx.channel())
         } else {
             c.writeAndFlush(msg)

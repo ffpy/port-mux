@@ -9,11 +9,12 @@ import java.nio.file.Path
  * @param path 文件路径
  * @return 配置对象，null代表找不到配置文件
  */
-fun getConfig(path: Path): Config? {
+@Throws(Exception::class)
+fun getConfig(path: Path): Config {
     if (!path.toFile().exists()) {
-        log.error("找不到配置文件")
-        return null
+        throw Exception("找不到配置文件")
     }
+    // TODO 检查数据
     return JsonUtils.parse(path, Config::class.java)
 }
 
@@ -30,13 +31,13 @@ data class Config(
     /** 连接超时时间(毫秒) */
     var connectTimeout: Int = 0,
     /** 转发配置 */
-    var protocols: List<Protocol> = emptyList(),
+    var protocols: List<ProtocolConfig> = emptyList(),
 )
 
 /**
  * 转发配置
  */
-data class Protocol(
+data class ProtocolConfig(
     /** 名称 */
     var name: String = "",
     /** 转发类型 */

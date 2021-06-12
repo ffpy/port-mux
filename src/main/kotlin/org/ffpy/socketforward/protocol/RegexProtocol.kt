@@ -7,7 +7,7 @@ import org.ffpy.socketforward.util.ByteBufUtils
 /**
  * 正则匹配
  */
-class RegexProtocol(override val config: ProtocolConfig) : Protocol {
+class RegexProtocol(override val config: ProtocolConfig) : BaseProtocol(config) {
 
     private val regexes = config.patterns.map { Regex(it) }
 

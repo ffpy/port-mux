@@ -12,7 +12,7 @@ import kotlin.system.exitProcess
  * 配置文件管理器
  */
 object Configs {
-    val log: Logger = LoggerFactory.getLogger(javaClass)
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     /** 配置信息对象 */
     val config: Config
@@ -33,6 +33,12 @@ object Configs {
         config_ = check(JsonUtils.parse(path, Config::class.java))
     }
 
+    /**
+     * 检查配置信息是否有效，如果无效则打印错误信息，并且结束程序
+     *
+     * @param config 要检查的配置信息
+     * @return 原样放回config
+     */
     private fun check(config: Config): Config {
         if (!AddressUtils.validAddress(config.listen)) {
             log.error("listen地址格式不正确: {}", config.listen)

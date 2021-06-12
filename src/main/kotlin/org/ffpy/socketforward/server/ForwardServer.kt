@@ -22,7 +22,7 @@ object ForwardServer {
      */
     fun start() {
         val boosGroup = NioEventLoopGroup(1)
-        val workerGroup = NioEventLoopGroup()
+        val workerGroup = NioEventLoopGroup(2)
         try {
             val bootstrap = ServerBootstrap()
             bootstrap.group(boosGroup, workerGroup)
@@ -37,7 +37,7 @@ object ForwardServer {
 
             val future = bootstrap.bind(AddressUtils.parseAddress(Configs.config.listen)).sync()
 
-            log.info("启动转发服务在${Configs.config.listen}")
+            log.info("启动转发服务: ${Configs.config.listen}")
 
             ClientManager.init()
 

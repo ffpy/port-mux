@@ -25,7 +25,7 @@ object ClientManager {
      */
     fun init() {
         val b = Bootstrap()
-        val group = NioEventLoopGroup()
+        val group = NioEventLoopGroup(2)
 
         b.group(group)
             .channel(NioSocketChannel::class.java)

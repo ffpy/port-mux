@@ -19,12 +19,10 @@ class ClientHandler : ChannelInboundHandlerAdapter() {
     private lateinit var serverChannel: Channel
 
     override fun channelActive(ctx: ChannelHandlerContext) {
-        super.channelActive(ctx)
         log.info("${ctx.channel().remoteAddress()}连接成功")
     }
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        super.channelInactive(ctx)
         log.info("${ctx.channel().remoteAddress()}连接断开")
         serverChannel.close()
     }

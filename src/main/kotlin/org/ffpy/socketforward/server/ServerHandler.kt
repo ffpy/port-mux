@@ -10,6 +10,7 @@ import org.ffpy.socketforward.protocol.Protocols
 import org.ffpy.socketforward.util.AddressUtils
 import org.ffpy.socketforward.util.DebugUtils
 import org.slf4j.LoggerFactory
+import java.net.SocketAddress
 import java.util.concurrent.TimeUnit
 
 /**
@@ -18,27 +19,30 @@ import java.util.concurrent.TimeUnit
 class ServerHandler : ChannelInboundHandlerAdapter() {
     companion object {
         private val log = LoggerFactory.getLogger(ServerHandler::class.java)
-        private val timer = HashedWheelTimer(500, TimeUnit.MILLISECONDS, 64)
+
+        /** 定时器 */
+        private val timer = HashedWheelTimer(100, TimeUnit.MILLISECONDS, 64)
+
+        /** 转发协议列表 */
+        private val protocols = config.protocols.map { Protocols.create(it) }
+
+        /** 默认转发地址 */
+        private val defaultAddress = AddressUtils.parseAddress(config.default)
     }
 
     /** 转发目标连接 */
     private var clientChannel: Channel? = null
 
-    /** 转发协议列表 */
-    private val protocols = config.protocols.map { Protocols.create(it) }
-
     /** 首次读取超时检查定时器 */
     private var firstReadTimeout: Timeout? = null
 
     override fun channelActive(ctx: ChannelHandlerContext) {
-        super.channelActive(ctx)
-
         log.info("${ctx.channel().remoteAddress()}新连接")
 
         // 连接后一段时间内没有数据则直接转发到默认地址
         firstReadTimeout = timer.newTimeout({
             log.info("等待数据超时，转发到默认地址")
-            connect(config.default, null, ctx.channel())
+            connect(defaultAddress, null, ctx.channel())
         }, config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
     }
 
@@ -69,22 +73,15 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
     /**
      * 连接转发地址
      * @param address 转发地址
-     * @param msg 首次读取数据
+     * @param msg 首次读取的数据
      * @param serverChannel 源连接
      */
-    private fun connect(address: String, msg: Any?, serverChannel: Channel) {
-        if (address.isEmpty()) {
-            log.info("找不到转发地址")
-            serverChannel.close()
-            return
-        }
-
+    private fun connect(address: SocketAddress, msg: Any?, serverChannel: Channel) {
         log.info("${serverChannel.remoteAddress()} => $address")
 
-        ClientManager.connect(AddressUtils.parseAddress(address)).addListener(object : ChannelFutureListener {
+        ClientManager.connect(address).addListener(object : ChannelFutureListener {
             override fun operationComplete(future: ChannelFuture) {
                 if (future.isSuccess) {
-
                     val channel = future.channel()
                     clientChannel = channel
                     channel.pipeline().fireUserEventTriggered(serverChannel)
@@ -112,14 +109,15 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
     /**
      * 匹配转发协议
      */
-    private fun matchProtocol(buf: ByteBuf, ctx: ChannelHandlerContext): String {
+    private fun matchProtocol(buf: ByteBuf, ctx: ChannelHandlerContext): SocketAddress {
         for (protocol in protocols) {
             if (protocol.match(buf)) {
                 log.info("{}匹配协议: {}", ctx.channel().remoteAddress(), protocol.config.name)
-                return protocol.config.addr
+                return protocol.address
             }
         }
+
         log.info("{}匹配失败，转发到默认地址", ctx.channel().remoteAddress())
-        return config.default
+        return defaultAddress
     }
 }

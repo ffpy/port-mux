@@ -29,7 +29,11 @@ class ClientHandler : ChannelInboundHandlerAdapter() {
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
         DebugUtils.logData(log, msg as ByteBuf, ctx)
-        serverChannel.writeAndFlush(msg)
+        serverChannel.write(msg)
+    }
+
+    override fun channelReadComplete(ctx: ChannelHandlerContext?) {
+        serverChannel.flush()
     }
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {

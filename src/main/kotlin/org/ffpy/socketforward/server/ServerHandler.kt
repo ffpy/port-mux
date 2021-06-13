@@ -56,8 +56,12 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
             val address = matchProtocol(msg, ctx)
             connect(address, msg, ctx.channel())
         } else {
-            c.writeAndFlush(msg)
+            c.write(msg)
         }
+    }
+
+    override fun channelReadComplete(ctx: ChannelHandlerContext) {
+        clientChannel?.flush()
     }
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
@@ -107,7 +111,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
     }
 
     /**
-     * 匹配转发协议
+     * 匹配转发地址
      */
     private fun matchProtocol(buf: ByteBuf, ctx: ChannelHandlerContext): SocketAddress {
         for (protocol in protocols) {

@@ -8,10 +8,12 @@ import org.ffpy.socketforward.client.ClientManager
 import org.ffpy.socketforward.config.Configs.config
 import org.ffpy.socketforward.protocol.Protocols
 import org.ffpy.socketforward.util.AddressUtils
+import org.ffpy.socketforward.util.ByteBufUtils
 import org.ffpy.socketforward.util.DebugUtils
 import org.slf4j.LoggerFactory
 import java.net.SocketAddress
 import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 /**
  * 转发处理器
@@ -25,6 +27,9 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
 
         /** 转发协议列表 */
         private val protocols = config.protocols.map { Protocols.create(it) }
+
+        /** 匹配时需要的最大数据长度 */
+        private val maxLength = protocols.asSequence().map { it.getMaxLength() }.maxOrNull() ?: 0
 
         /** 默认转发地址 */
         private val defaultAddress = AddressUtils.parseAddress(config.default)
@@ -114,8 +119,9 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
      * 匹配转发地址
      */
     private fun matchProtocol(buf: ByteBuf, ctx: ChannelHandlerContext): SocketAddress {
+        val data = ByteBufUtils.getBytes(buf, min(maxLength, buf.readableBytes()))
         for (protocol in protocols) {
-            if (protocol.match(buf)) {
+            if (protocol.match(data)) {
                 log.info("{}匹配协议: {}", ctx.channel().remoteAddress(), protocol.config.name)
                 return protocol.address
             }

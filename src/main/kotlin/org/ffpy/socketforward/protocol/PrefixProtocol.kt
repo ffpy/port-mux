@@ -6,7 +6,7 @@ import org.ffpy.socketforward.util.ArraysUtils
 /**
  * 前缀匹配
  */
-class PrefixProtocol(override val config: ProtocolConfig) : BaseProtocol(config) {
+class PrefixProtocol(config: ProtocolConfig) : BaseProtocol(config) {
 
     private val patternBytes = config.patterns.map { it.toByteArray() }
 

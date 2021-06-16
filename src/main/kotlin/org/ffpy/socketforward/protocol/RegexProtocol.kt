@@ -5,7 +5,7 @@ import org.ffpy.socketforward.config.ProtocolConfig
 /**
  * 正则匹配
  */
-class RegexProtocol(override val config: ProtocolConfig) : BaseProtocol(config) {
+class RegexProtocol(config: ProtocolConfig) : BaseProtocol(config) {
 
     private val regexes = config.patterns.map { Regex(it) }
 

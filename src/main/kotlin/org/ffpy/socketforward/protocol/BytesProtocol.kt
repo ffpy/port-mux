@@ -6,7 +6,7 @@ import org.ffpy.socketforward.util.ArraysUtils
 /**
  * 字节数组匹配
  */
-class BytesProtocol(override val config: ProtocolConfig) : BaseProtocol(config) {
+class BytesProtocol(config: ProtocolConfig) : BaseProtocol(config) {
 
     private val patterns = config.patterns.map { pattern ->
         pattern.split(",").asSequence()

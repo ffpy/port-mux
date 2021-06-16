@@ -142,7 +142,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         val data = ByteBufUtils.getBytes(buf, min(maxLength, buf.readableBytes()))
         for (protocol in protocols) {
             if (protocol.match(data)) {
-                log.info("{}匹配协议: {}", ctx.channel().remoteAddress(), protocol.config.name)
+                log.info("{}匹配协议: {}", ctx.channel().remoteAddress(), protocol.name)
                 return protocol.address
             }
         }

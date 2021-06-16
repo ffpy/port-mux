@@ -1,6 +1,5 @@
 package org.ffpy.socketforward.protocol
 
-import org.ffpy.socketforward.config.ProtocolConfig
 import java.net.SocketAddress
 
 /**
@@ -8,8 +7,8 @@ import java.net.SocketAddress
  */
 interface Protocol {
 
-    /** 对应的转发配置信息 */
-    val config: ProtocolConfig
+    /** 名称 */
+    val name: String
 
     /** 转发地址 */
     val address: SocketAddress

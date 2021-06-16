@@ -44,17 +44,25 @@ object Configs {
             log.error("listen地址格式不正确: {}", config.listen)
             exitProcess(-1)
         }
-        if (!AddressUtils.validAddress(config.default)) {
+        if (config.default.isNotEmpty() && !AddressUtils.validAddress(config.default)) {
             log.error("default地址格式不正确: {}", config.default)
-            exitProcess(-1)
-        }
-        if (config.readTimeout <= 0) {
-            log.error("readTimeout不能小于1")
             exitProcess(-1)
         }
         if (config.connectTimeout <= 0) {
             log.error("connectTimeout不能小于1")
             exitProcess(-1)
+        }
+
+        val readTimeout = config.readTimeout
+        if (readTimeout != null) {
+            if (readTimeout.timeout <= 0) {
+                log.error("read_timeout.timeout不能小于1")
+                exitProcess(-1)
+            }
+            if (!AddressUtils.validAddress(readTimeout.address)) {
+                log.error("read_timeout.address地址格式不正确: {}", readTimeout.address)
+                exitProcess(-1)
+            }
         }
 
         config.protocols.forEachIndexed { index, protocol -> checkProtocol(index, protocol) }

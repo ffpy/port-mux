@@ -32,7 +32,11 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         private val maxLength = protocols.asSequence().map { it.getMaxLength() }.maxOrNull() ?: 0
 
         /** 默认转发地址 */
-        private val defaultAddress = AddressUtils.parseAddress(config.default)
+        private val defaultAddress: SocketAddress? =
+            if (config.default.isEmpty()) null else AddressUtils.parseAddress(config.default)
+
+        /** 首次读取超时的转发地址 */
+        private val timeoutAddress: SocketAddress? = config.readTimeout?.let { AddressUtils.parseAddress(it.address) }
     }
 
     /** 转发目标连接 */
@@ -45,10 +49,17 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         log.info("${ctx.channel().remoteAddress()}新连接")
 
         // 连接后一段时间内没有数据则直接转发到默认地址
-        firstReadTimeout = timer.newTimeout({
-            log.info("等待数据超时，转发到默认地址")
-            connect(defaultAddress, null, ctx.channel())
-        }, config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
+        val address = timeoutAddress
+        val readTimeout = config.readTimeout
+        if (address == null || readTimeout == null) {
+            log.info("等待数据超时，没有配置超时转发地址，关闭连接")
+            ctx.close()
+        } else {
+            firstReadTimeout = timer.newTimeout({
+                log.info("等待数据超时，转发到超时转发地址")
+                connect(address, null, ctx.channel())
+            }, readTimeout.timeout.toLong(), TimeUnit.MILLISECONDS)
+        }
     }
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
@@ -59,7 +70,12 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         val c = clientChannel
         if (c == null) {
             val address = matchProtocol(msg, ctx)
-            connect(address, msg, ctx.channel())
+            if (address == null) {
+                log.info("默认转发地址为空，关闭连接")
+                ctx.close()
+            } else {
+                connect(address, msg, ctx.channel())
+            }
         } else {
             c.write(msg)
         }
@@ -71,6 +87,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
         log.info("${ctx.channel().remoteAddress()}连接断开")
+        cancelFirstTimeout()
         clientChannel?.close()
     }
 
@@ -81,11 +98,14 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
 
     /**
      * 连接转发地址
+     *
      * @param address 转发地址
      * @param msg 首次读取的数据
      * @param serverChannel 源连接
      */
     private fun connect(address: SocketAddress, msg: Any?, serverChannel: Channel) {
+        if (!serverChannel.isActive) return
+
         log.info("${serverChannel.remoteAddress()} => $address")
 
         ClientManager.connect(address).addListener(object : ChannelFutureListener {
@@ -118,7 +138,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
     /**
      * 匹配转发地址
      */
-    private fun matchProtocol(buf: ByteBuf, ctx: ChannelHandlerContext): SocketAddress {
+    private fun matchProtocol(buf: ByteBuf, ctx: ChannelHandlerContext): SocketAddress? {
         val data = ByteBufUtils.getBytes(buf, min(maxLength, buf.readableBytes()))
         for (protocol in protocols) {
             if (protocol.match(data)) {

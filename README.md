@@ -1,6 +1,38 @@
+# socket-forward
+
+使用此工具可以实现通过一个端口，来代理多个其他端口的连接。  
+例如可以用于内网穿透，用一个端口来提供多个服务，如HTTP、SSH、Windows远程连接等。
+<br><br>
+此项目参考了[switcher](https://github.com/jackyspy/switcher) 项目的思想，用kotlin和Netty来实现，
+还额外添加了字节数组前缀匹配的功能。
+
+## 用法
+- 运行环境: jdk11
+- 启动命令:
+```
+java -jar socket-forward.jar
+```
+- 帮助命令
+```
+java -jar socket-forward.jar --help
+Usage: <main class> [options]
+  Options:
+    --help
+
+    -config
+      配置文件路径
+      Default: config.json5
+    -debug
+      启用调试模式，打印转发数据，可选值: string, byte
+      Default: <empty string>
+```
+
+### config.json5
+在此文件中配置代理规则
+```json5
 {
   // 监听地址
-  listen: ":8200",
+  listen: ":80",
   // 默认转发地址
   default: "127.0.0.1:8080",
   // 连接转发地址超时时间(毫秒)
@@ -8,7 +40,7 @@
   // 读取超时时间(毫秒)
   read_timeout : 1000,
   // 读取超时的转发地址
-  read_timeout_address: "127.0.0.1:5900",
+//  read_timeout_address: "127.0.0.1:5900",
   // 转发协议配置
   protocols: [
     //    // 示例
@@ -46,3 +78,7 @@
 //    }
   ]
 }
+```
+
+## License
+socket-forward is licensed under the Apache License, Version 2.0 

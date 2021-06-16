@@ -36,7 +36,8 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
             if (config.default.isEmpty()) null else AddressUtils.parseAddress(config.default)
 
         /** 首次读取超时的转发地址 */
-        private val timeoutAddress: SocketAddress? = config.readTimeout?.let { AddressUtils.parseAddress(it.address) }
+        private val timeoutAddress: SocketAddress? =
+            if (config.readTimeoutAddress.isEmpty()) null else AddressUtils.parseAddress(config.readTimeoutAddress)
     }
 
     /** 转发目标连接 */
@@ -50,15 +51,14 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
 
         // 连接后一段时间内没有数据则直接转发到默认地址
         val address = timeoutAddress
-        val readTimeout = config.readTimeout
-        if (address == null || readTimeout == null) {
+        if (address == null) {
             log.info("等待数据超时，没有配置超时转发地址，关闭连接")
             ctx.close()
         } else {
             firstReadTimeout = timer.newTimeout({
                 log.info("等待数据超时，转发到超时转发地址")
                 connect(address, null, ctx.channel())
-            }, readTimeout.timeout.toLong(), TimeUnit.MILLISECONDS)
+            }, config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
         }
     }
 

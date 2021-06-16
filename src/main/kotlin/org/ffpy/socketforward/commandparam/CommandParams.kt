@@ -1,6 +1,7 @@
 package org.ffpy.socketforward.commandparam
 
 import com.beust.jcommander.JCommander
+import kotlin.system.exitProcess
 
 /***
  * 命令行参数解析
@@ -18,10 +19,16 @@ object CommandParams {
      */
     fun init(args: Array<out String>) {
         val param = Param()
-        JCommander.newBuilder()
+        val jCommander = JCommander.newBuilder()
             .addObject(param)
             .build()
-            .parse(*args)
+        jCommander.parse(*args)
+
+        if (param.help) {
+            jCommander.usage()
+            exitProcess(0)
+        }
+
         param_ = param
     }
 }

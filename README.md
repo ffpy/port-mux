@@ -10,7 +10,7 @@
 - 运行环境: jdk11
 - 启动命令:
 ```
-java -jar socket-forward.jar
+java -Xmx10m -jar socket-forward.jar
 ```
 - 帮助命令
 ```

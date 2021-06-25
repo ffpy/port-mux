@@ -50,16 +50,16 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         log.info("${ctx.channel().remoteAddress()}新连接")
 
         // 连接后一段时间内没有数据则直接转发到默认地址
-        val address = timeoutAddress
-        if (address == null) {
-            log.info("等待数据超时，没有配置超时转发地址，关闭连接")
-            ctx.close()
-        } else {
-            firstReadTimeout = timer.newTimeout({
+        firstReadTimeout = timer.newTimeout({
+            val address = timeoutAddress
+            if (address == null) {
+                log.info("等待数据超时，没有配置超时转发地址，关闭连接")
+                ctx.close()
+            } else {
                 log.info("等待数据超时，转发到超时转发地址")
                 connect(address, null, ctx.channel())
-            }, config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
-        }
+            }
+        }, config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
     }
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {

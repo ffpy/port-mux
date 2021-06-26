@@ -122,7 +122,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
                     serverChannel.close()
                 }
             }
-        })
+        }).sync()
     }
 
     /**

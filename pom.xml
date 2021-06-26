@@ -6,7 +6,7 @@
 
     <artifactId>socket-forward</artifactId>
     <groupId>org.ffpy</groupId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>socket-forward</name>

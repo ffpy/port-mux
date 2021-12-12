@@ -1,4 +1,4 @@
-package org.ffpy.socketforward.util
+package org.ffpy.portmux.util
 
 import a2u.tn.utils.json.TnJson
 import com.google.gson.FieldNamingPolicy

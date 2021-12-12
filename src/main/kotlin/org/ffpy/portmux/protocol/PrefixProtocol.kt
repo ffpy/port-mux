@@ -1,7 +1,7 @@
-package org.ffpy.socketforward.protocol
+package org.ffpy.portmux.protocol
 
-import org.ffpy.socketforward.config.ProtocolConfig
-import org.ffpy.socketforward.util.ArraysUtils
+import org.ffpy.portmux.config.ProtocolConfig
+import org.ffpy.portmux.util.ArraysUtils
 
 /**
  * 前缀匹配

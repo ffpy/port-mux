@@ -1,8 +1,8 @@
-package org.ffpy.socketforward.config
+package org.ffpy.portmux.config
 
-import org.ffpy.socketforward.protocol.Protocols
-import org.ffpy.socketforward.util.AddressUtils
-import org.ffpy.socketforward.util.JsonUtils
+import org.ffpy.portmux.protocol.Protocols
+import org.ffpy.portmux.util.AddressUtils
+import org.ffpy.portmux.util.JsonUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path

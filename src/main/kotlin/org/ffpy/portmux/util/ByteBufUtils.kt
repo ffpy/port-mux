@@ -1,4 +1,4 @@
-package org.ffpy.socketforward.util
+package org.ffpy.portmux.util
 
 import io.netty.buffer.ByteBuf
 

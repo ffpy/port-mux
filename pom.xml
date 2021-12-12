@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>socket-forward</artifactId>
+    <artifactId>port-mux</artifactId>
     <groupId>org.ffpy</groupId>
     <version>1.0.2</version>
     <packaging>jar</packaging>
 
-    <name>socket-forward</name>
+    <name>port-mux</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -63,10 +63,10 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
-                    <finalName>socket-forward</finalName>
+                    <finalName>port-mux</finalName>
                     <archive>
                         <manifest>
-                            <mainClass>org.ffpy.socketforward.MainKt</mainClass>
+                            <mainClass>org.ffpy.portmux.MainKt</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

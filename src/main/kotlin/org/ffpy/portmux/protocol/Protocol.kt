@@ -1,4 +1,4 @@
-package org.ffpy.socketforward.protocol
+package org.ffpy.portmux.protocol
 
 import java.net.SocketAddress
 

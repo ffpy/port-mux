@@ -1,4 +1,4 @@
-package org.ffpy.socketforward.commandparam
+package org.ffpy.portmux.commandparam
 
 import com.beust.jcommander.JCommander
 import kotlin.system.exitProcess

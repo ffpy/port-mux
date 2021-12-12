@@ -1,10 +1,10 @@
-package org.ffpy.socketforward.client
+package org.ffpy.portmux.client
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
-import org.ffpy.socketforward.util.DebugUtils
+import org.ffpy.portmux.util.DebugUtils
 import org.slf4j.LoggerFactory
 
 /**

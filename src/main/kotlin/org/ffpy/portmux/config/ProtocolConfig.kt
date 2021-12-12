@@ -1,4 +1,4 @@
-package org.ffpy.socketforward.config
+package org.ffpy.portmux.config
 
 /**
  * 转发配置

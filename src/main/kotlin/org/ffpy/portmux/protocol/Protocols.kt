@@ -1,6 +1,6 @@
-package org.ffpy.socketforward.protocol
+package org.ffpy.portmux.protocol
 
-import org.ffpy.socketforward.config.ProtocolConfig
+import org.ffpy.portmux.config.ProtocolConfig
 
 enum class Protocols(val type: String, private val factory: (ProtocolConfig) -> Protocol) {
 

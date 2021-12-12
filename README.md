@@ -1,7 +1,5 @@
-# socket-forward
-
-使用此工具可以实现通过一个端口，来代理多个其他端口的连接。  
-例如可以用于内网穿透，用一个端口来提供多个服务，如HTTP、SSH、Windows远程连接等。
+# port-mux
+一个端口复用，可以在一个端口上提供SSH、HTTP、VNC等服务。
 <br><br>
 此项目参考了[switcher](https://github.com/jackyspy/switcher) 项目的思想，用kotlin和Netty来实现，
 还额外添加了字节数组前缀匹配的功能。
@@ -10,11 +8,11 @@
 - 运行环境: jdk11
 - 启动命令:
 ```
-java -Xmx10m -jar socket-forward.jar
+java -Xmx10m -jar port-mux.jar
 ```
 - 帮助命令
 ```
-java -jar socket-forward.jar --help
+java -jar port-mux.jar --help
 Usage: <main class> [options]
   Options:
     --help
@@ -81,4 +79,4 @@ Usage: <main class> [options]
 ```
 
 ## License
-socket-forward is licensed under the Apache License, Version 2.0 
+port-mux is licensed under the Apache License, Version 2.0 

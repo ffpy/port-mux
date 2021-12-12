@@ -1,7 +1,7 @@
-package org.ffpy.socketforward.protocol
+package org.ffpy.portmux.protocol
 
-import org.ffpy.socketforward.config.ProtocolConfig
-import org.ffpy.socketforward.util.AddressUtils
+import org.ffpy.portmux.config.ProtocolConfig
+import org.ffpy.portmux.util.AddressUtils
 import java.net.SocketAddress
 
 abstract class BaseProtocol(val config: ProtocolConfig) : Protocol {

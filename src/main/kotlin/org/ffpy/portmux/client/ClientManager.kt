@@ -1,4 +1,4 @@
-package org.ffpy.socketforward.client
+package org.ffpy.portmux.client
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.ChannelFuture
@@ -8,7 +8,7 @@ import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
-import org.ffpy.socketforward.config.Configs
+import org.ffpy.portmux.config.Configs
 import java.net.SocketAddress
 
 /**

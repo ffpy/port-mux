@@ -1,15 +1,15 @@
-package org.ffpy.socketforward.server
+package org.ffpy.portmux.server
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.*
 import io.netty.util.HashedWheelTimer
 import io.netty.util.Timeout
-import org.ffpy.socketforward.client.ClientManager
-import org.ffpy.socketforward.config.Configs.config
-import org.ffpy.socketforward.protocol.Protocols
-import org.ffpy.socketforward.util.AddressUtils
-import org.ffpy.socketforward.util.ByteBufUtils
-import org.ffpy.socketforward.util.DebugUtils
+import org.ffpy.portmux.client.ClientManager
+import org.ffpy.portmux.config.Configs.config
+import org.ffpy.portmux.protocol.Protocols
+import org.ffpy.portmux.util.AddressUtils
+import org.ffpy.portmux.util.ByteBufUtils
+import org.ffpy.portmux.util.DebugUtils
 import org.slf4j.LoggerFactory
 import java.net.SocketAddress
 import java.util.concurrent.TimeUnit

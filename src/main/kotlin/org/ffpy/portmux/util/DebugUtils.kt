@@ -1,8 +1,8 @@
-package org.ffpy.socketforward.util
+package org.ffpy.portmux.util
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import org.ffpy.socketforward.commandparam.CommandParams.param
+import org.ffpy.portmux.commandparam.CommandParams.param
 import org.slf4j.Logger
 
 /**

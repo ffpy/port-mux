@@ -1,8 +1,8 @@
 # port-mux
-一个端口复用，可以在一个端口上提供SSH、HTTP、VNC等服务。
+一个端口复用工具，可以在一个端口上提供SSH、HTTP、VNC等多种服务。
 <br><br>
-此项目参考了[switcher](https://github.com/jackyspy/switcher) 项目的思想，用kotlin和Netty来实现，
-还额外添加了字节数组前缀匹配的功能。
+此项目参考了[switcher](https://github.com/jackyspy/switcher) 项目的思想，用 kotlin 和 Netty 来实现，
+还添加了字节数组前缀匹配的功能。
 
 ## 用法
 - 运行环境: jdk11

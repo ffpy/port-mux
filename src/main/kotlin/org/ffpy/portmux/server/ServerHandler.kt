@@ -5,9 +5,8 @@ import io.netty.channel.*
 import io.netty.util.HashedWheelTimer
 import io.netty.util.Timeout
 import org.ffpy.portmux.client.ClientManager
-import org.ffpy.portmux.config.Configs.config
-import org.ffpy.portmux.protocol.Protocols
-import org.ffpy.portmux.util.AddressUtils
+import org.ffpy.portmux.config.Configs
+import org.ffpy.portmux.config.ForwardConfig
 import org.ffpy.portmux.util.ByteBufUtils
 import org.ffpy.portmux.util.DebugUtils
 import org.slf4j.LoggerFactory
@@ -25,19 +24,11 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         /** 定时器 */
         private val timer = HashedWheelTimer(100, TimeUnit.MILLISECONDS, 64)
 
-        /** 转发协议列表 */
-        private val protocols = config.protocols.map { Protocols.create(it) }
+        private var forwardConfig = ForwardConfig(Configs.config)
 
-        /** 匹配时需要的最大数据长度 */
-        private val maxLength = protocols.asSequence().map { it.getMaxLength() }.maxOrNull() ?: 0
-
-        /** 默认转发地址 */
-        private val defaultAddress: SocketAddress? =
-            if (config.default.isEmpty()) null else AddressUtils.parseAddress(config.default)
-
-        /** 首次读取超时的转发地址 */
-        private val timeoutAddress: SocketAddress? =
-            if (config.readTimeoutAddress.isEmpty()) null else AddressUtils.parseAddress(config.readTimeoutAddress)
+        fun refreshForwardConfig() {
+            forwardConfig = ForwardConfig(Configs.config)
+        }
     }
 
     /** 转发目标连接 */
@@ -51,7 +42,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
 
         // 连接后一段时间内没有数据则直接转发到默认地址
         firstReadTimeout = timer.newTimeout({
-            val address = timeoutAddress
+            val address = forwardConfig.timeoutAddress
             if (address == null) {
                 log.info("等待数据超时，没有配置超时转发地址，关闭连接")
                 ctx.close()
@@ -59,7 +50,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
                 log.info("等待数据超时，转发到超时转发地址")
                 connect(address, null, ctx.channel())
             }
-        }, config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
+        }, forwardConfig.config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
     }
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
@@ -139,8 +130,8 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
      * 匹配转发地址
      */
     private fun matchProtocol(buf: ByteBuf, ctx: ChannelHandlerContext): SocketAddress? {
-        val data = ByteBufUtils.getBytes(buf, min(maxLength, buf.readableBytes()))
-        for (protocol in protocols) {
+        val data = ByteBufUtils.getBytes(buf, min(forwardConfig.maxLength, buf.readableBytes()))
+        for (protocol in forwardConfig.protocols) {
             if (protocol.match(data)) {
                 log.info("{}匹配协议: {}", ctx.channel().remoteAddress(), protocol.name)
                 return protocol.address
@@ -148,6 +139,6 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         }
 
         log.info("{}匹配失败，转发到默认地址", ctx.channel().remoteAddress())
-        return defaultAddress
+        return forwardConfig.defaultAddress
     }
 }

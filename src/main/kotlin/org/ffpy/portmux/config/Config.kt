@@ -7,6 +7,9 @@ data class Config(
     /** 监听端口 */
     var listen: String = "",
 
+    /** 启用调试模式 */
+    var debug: String = "",
+
     /** 默认转发地址 */
     var default: String = "",
 

@@ -2,17 +2,14 @@ package org.ffpy.portmux.config
 
 import org.ffpy.portmux.protocol.Protocols
 import org.ffpy.portmux.util.AddressUtils
+import org.ffpy.portmux.util.DebugUtils
 import org.ffpy.portmux.util.JsonUtils
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.system.exitProcess
 
 /**
  * 配置文件管理器
  */
 object Configs {
-    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     /** 配置信息对象 */
     val config: Config
@@ -41,24 +38,22 @@ object Configs {
      */
     private fun check(config: Config): Config {
         if (!AddressUtils.validAddress(config.listen)) {
-            log.error("listen地址格式不正确: {}", config.listen)
-            exitProcess(-1)
+            throw Exception("listen地址格式不正确: ${config.listen}")
+        }
+        if (config.debug.isNotEmpty()) {
+            DebugUtils.Type.of(config.debug)
         }
         if (config.default.isNotEmpty() && !AddressUtils.validAddress(config.default)) {
-            log.error("default地址格式不正确: {}", config.default)
-            exitProcess(-1)
+            throw Exception("default地址格式不正确: ${config.default}")
         }
         if (config.connectTimeout <= 0) {
-            log.error("connectTimeout不能小于1")
-            exitProcess(-1)
+            throw Exception("connectTimeout不能小于1")
         }
         if (config.readTimeout <= 0) {
-            log.error("readTimeout不能小于1")
-            exitProcess(-1)
+            throw Exception("readTimeout不能小于1")
         }
         if (config.readTimeoutAddress.isNotEmpty() && !AddressUtils.validAddress(config.readTimeoutAddress)) {
-            log.error("read_timeout_address地址格式不正确")
-            exitProcess(-1)
+            throw Exception("read_timeout_address地址格式不正确")
         }
 
         config.protocols.forEachIndexed { index, protocol -> checkProtocol(index, protocol) }
@@ -68,40 +63,30 @@ object Configs {
 
     private fun checkProtocol(index: Int, protocol: ProtocolConfig) {
         if (protocol.name.isEmpty()) {
-            log.error("protocol[${index}].name不能为空")
-            exitProcess(-1)
+            throw Exception("protocol[${index}].name不能为空")
         }
         if (protocol.type.isEmpty()) {
-            log.error("protocol[${index}].type不能为空")
-            exitProcess(-1)
+            throw Exception("protocol[${index}].type不能为空")
         }
         val type = Protocols.values().asSequence()
             .filter { it.type == protocol.type }
-            .firstOrNull()
-        if (type == null) {
-            log.error("未知的protocol[${index}].type: {}", protocol.type)
-            exitProcess(-1)
-        }
+            .firstOrNull() ?: throw Exception("未知的protocol[${index}].type: ${protocol.type}")
 
         if (!AddressUtils.validAddress(protocol.addr)) {
-            log.error("protocol[${index}].addr地址格式不正确: {}", protocol.addr)
-            exitProcess(-1)
+            throw Exception("protocol[${index}].addr地址格式不正确: ${protocol.addr}")
         }
 
         if (type == Protocols.REGEX) {
             if (protocol.minLen <= 0) {
-                log.error("protocol[${index}].min_len不能小于1")
-                exitProcess(-1)
+                throw Exception("protocol[${index}].min_len不能小于1")
             }
             if (protocol.maxLen <= 0) {
-                log.error("protocol[${index}].max_len不能小于1")
-                exitProcess(-1)
+                throw Exception("protocol[${index}].max_len不能小于1")
             }
         }
 
         if (protocol.patterns.isEmpty()) {
-            log.error("protocol[${index}].patterns不能为空")
-            exitProcess(-1)
+            throw Exception("protocol[${index}].patterns不能为空")
         }
     }
 }

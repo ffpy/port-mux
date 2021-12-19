@@ -12,6 +12,6 @@ data class Param(
     @Parameter(names = ["-config"], description = "配置文件路径")
     var config: String = "config.json5",
 
-    @Parameter(names = ["-debug"], description = "启用调试模式，打印转发数据，可选值: string, byte")
-    var debug: String = "",
+    @Parameter(names = ["-watch-config"], description = "是否监听配置文件改变")
+    var watchConfig: Boolean = true,
 )

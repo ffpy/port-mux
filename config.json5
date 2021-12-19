@@ -1,9 +1,11 @@
 {
-  // 监听地址
+  // 监听地址，不支持不停机更新
   listen: ":8200",
+  // 启用调试模式，打印转发数据，可选值: string, byte
+  debug: "",
   // 默认转发地址
   default: "127.0.0.1:8080",
-  // 连接转发地址超时时间(毫秒)
+  // 连接转发地址超时时间(毫秒)，不支持不停机更新
   connect_timeout: 1000,
   // 读取超时时间(毫秒)
   read_timeout : 1000,
@@ -29,13 +31,13 @@
     {
       name: "ssh",
       type: "prefix",
-      addr: "127.0.0.1:5000",
+      addr: "127.0.0.1:22",
       patterns: ["SSH"]
     },
     {
       name: "http",
       type: "prefix",
-      addr: "127.0.0.1:8080",
+      addr: "127.0.0.1:80",
       patterns: ["GET ", "POST ", "PUT ", "DELETE ", "HEAD ", "OPTIONS "]
     },
 //    {

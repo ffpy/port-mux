@@ -1,7 +1,7 @@
 package org.ffpy.portmux.config
 
 /**
- * 转发配置
+ * 协议配置
  */
 data class ProtocolConfig(
     /** 名称 */

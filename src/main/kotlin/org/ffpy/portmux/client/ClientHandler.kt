@@ -9,14 +9,13 @@ import org.slf4j.LoggerFactory
 
 /**
  * 目标连接处理器
+ *
+ * @param serverChannel 对应的源连接
  */
-class ClientHandler : ChannelInboundHandlerAdapter() {
+class ClientHandler(private val serverChannel: Channel) : ChannelInboundHandlerAdapter() {
     companion object {
         private val log = LoggerFactory.getLogger(ClientHandler::class.java)
     }
-
-    /** 对应的源连接 */
-    private lateinit var serverChannel: Channel
 
     override fun channelActive(ctx: ChannelHandlerContext) {
         log.info("${ctx.channel().remoteAddress()}连接成功")
@@ -32,19 +31,16 @@ class ClientHandler : ChannelInboundHandlerAdapter() {
         serverChannel.write(msg)
     }
 
-    override fun channelReadComplete(ctx: ChannelHandlerContext?) {
+    override fun channelReadComplete(ctx: ChannelHandlerContext) {
         serverChannel.flush()
+    }
+
+    override fun channelWritabilityChanged(ctx: ChannelHandlerContext) {
+        serverChannel.config().isAutoRead = ctx.channel().isWritable
     }
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
         log.error("${serverChannel.remoteAddress()}发生错误: ${cause.message}", cause)
         ctx.close()
-    }
-
-    override fun userEventTriggered(ctx: ChannelHandlerContext, evt: Any?) {
-        // 绑定源连接
-        if (evt is Channel) {
-            serverChannel = evt
-        }
     }
 }

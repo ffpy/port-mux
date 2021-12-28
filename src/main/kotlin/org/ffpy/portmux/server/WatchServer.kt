@@ -27,6 +27,7 @@ object WatchServer {
                         .firstOrNull() { it == configPath.fileName }
                         ?.let {
                             try {
+                                Thread.sleep(500)
                                 log.info("监听到配置文件 $it 发生变化")
                                 Configs.init(configPath)
                                 ServerHandler.refreshForwardConfig()

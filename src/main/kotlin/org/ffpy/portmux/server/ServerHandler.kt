@@ -1,10 +1,13 @@
 package org.ffpy.portmux.server
 
+import io.netty.bootstrap.Bootstrap
 import io.netty.buffer.ByteBuf
 import io.netty.channel.*
+import io.netty.channel.socket.SocketChannel
+import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.util.HashedWheelTimer
 import io.netty.util.Timeout
-import org.ffpy.portmux.client.ClientManager
+import org.ffpy.portmux.client.ClientHandler
 import org.ffpy.portmux.config.Configs
 import org.ffpy.portmux.config.ForwardConfig
 import org.ffpy.portmux.util.ByteBufUtils
@@ -48,7 +51,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
                 ctx.close()
             } else {
                 log.info("等待数据超时，转发到超时转发地址")
-                connect(address, null, ctx.channel())
+                connectClient(address, null, ctx.channel())
             }
         }, forwardConfig.config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
     }
@@ -65,7 +68,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
                 log.info("默认转发地址为空，关闭连接")
                 ctx.close()
             } else {
-                connect(address, msg, ctx.channel())
+                connectClient(address, msg, ctx.channel())
             }
         } else {
             c.write(msg)
@@ -82,6 +85,10 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
         clientChannel?.close()
     }
 
+    override fun channelWritabilityChanged(ctx: ChannelHandlerContext) {
+        clientChannel?.config()?.isAutoRead = ctx.channel().isWritable
+    }
+
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
         log.error("${ctx.channel().remoteAddress()}发生错误", cause)
         ctx.close()
@@ -94,26 +101,32 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
      * @param msg 首次读取的数据
      * @param serverChannel 源连接
      */
-    private fun connect(address: SocketAddress, msg: Any?, serverChannel: Channel) {
+    private fun connectClient(address: SocketAddress, msg: Any?, serverChannel: Channel) {
         if (!serverChannel.isActive) return
 
         log.info("${serverChannel.remoteAddress()} => $address")
 
-        ClientManager.connect(address).addListener(object : ChannelFutureListener {
-            override fun operationComplete(future: ChannelFuture) {
-                if (future.isSuccess) {
-                    val channel = future.channel()
-                    clientChannel = channel
-                    channel.pipeline().fireUserEventTriggered(serverChannel)
-                    if (msg != null) {
-                        channel.writeAndFlush(msg)
-                    }
+        val future = Bootstrap()
+            .channel(NioSocketChannel::class.java)
+            .group(serverChannel.eventLoop())
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Configs.config.connectTimeout)
+            .option(ChannelOption.SO_KEEPALIVE, true)
+            .handler(object : ChannelInitializer<SocketChannel>() {
+                override fun initChannel(ch: SocketChannel) {
+                    ch.pipeline().addLast(ClientHandler(serverChannel))
+                }
+            })
+            .connect(address)
+
+        clientChannel = future.channel()
+        future.addListener(ChannelFutureListener { f ->
+                if (f.isSuccess) {
+                    msg?.let { f.channel().writeAndFlush(it) }
                 } else {
                     log.error("连接${address}失败")
                     serverChannel.close()
                 }
-            }
-        }).sync()
+            })
     }
 
     /**

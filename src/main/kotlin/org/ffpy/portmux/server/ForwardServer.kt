@@ -6,7 +6,6 @@ import io.netty.channel.ChannelOption
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import org.ffpy.portmux.client.ClientManager
 import org.ffpy.portmux.config.Configs
 import org.ffpy.portmux.util.AddressUtils
 import org.slf4j.LoggerFactory
@@ -22,12 +21,11 @@ object ForwardServer {
      */
     fun start() {
         val boosGroup = NioEventLoopGroup(1)
-        val workerGroup = NioEventLoopGroup(2)
+        val workerGroup = NioEventLoopGroup()
         try {
             val bootstrap = ServerBootstrap()
             bootstrap.group(boosGroup, workerGroup)
                 .channel(NioServerSocketChannel::class.java)
-                .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childHandler(object : ChannelInitializer<SocketChannel>() {
                     override fun initChannel(ch: SocketChannel) {
@@ -39,13 +37,10 @@ object ForwardServer {
 
             log.info("启动转发服务: ${Configs.config.listen}")
 
-            ClientManager.init()
-
             future.channel().closeFuture().sync()
         } finally {
-            boosGroup.shutdownGracefully()
-            workerGroup.shutdownGracefully()
-            ClientManager.shutdown()
+            boosGroup.shutdownGracefully().syncUninterruptibly()
+            workerGroup.shutdownGracefully().syncUninterruptibly()
         }
     }
 }

@@ -1,6 +1,7 @@
 package org.ffpy.portmux.util
 
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.ByteBufUtil
 import io.netty.channel.ChannelHandlerContext
 import org.ffpy.portmux.config.Configs
 import org.slf4j.Logger
@@ -12,7 +13,7 @@ object DebugUtils {
 
     enum class Type(val code: String, private val action: (ByteBuf) -> String) {
         STRING("string", { it.toString(Charsets.UTF_8) }),
-        BYTE("byte", { ByteBufUtils.getBytes(it).contentToString() }),
+        HEX("hex", { ByteBufUtil.hexDump(it) }),
         ;
         companion object {
             fun of(code: String): Type {

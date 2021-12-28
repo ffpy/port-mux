@@ -27,7 +27,7 @@ class ForwardHandler(private val clientChannel: Channel) : ChannelInboundHandler
     }
 
     override fun channelWritabilityChanged(ctx: ChannelHandlerContext) {
-        clientChannel.config()?.isAutoRead = ctx.channel().isWritable
+        clientChannel.config().isAutoRead = ctx.channel().isWritable
     }
 
     override fun channelInactive(ctx: ChannelHandlerContext) {

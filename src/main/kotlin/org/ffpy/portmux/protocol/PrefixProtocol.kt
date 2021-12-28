@@ -1,16 +1,20 @@
 package org.ffpy.portmux.protocol
 
+import io.netty.buffer.Unpooled
 import org.ffpy.portmux.config.ProtocolConfig
-import org.ffpy.portmux.util.ArraysUtils
 
 /**
  * 前缀匹配
  */
-class PrefixProtocol(config: ProtocolConfig) : BaseProtocol(config) {
+class PrefixProtocol(config: ProtocolConfig) : BasePatternProtocol(config, getPatterns(config)) {
 
-    private val patternBytes = config.patterns.map { it.toByteArray() }
+    companion object {
+        private fun getPatterns(config: ProtocolConfig) =
+            config.patterns.asSequence()
+                .map { it.toByteArray() }
+                .map { Unpooled.wrappedBuffer(it) }
+                .map { Unpooled.wrappedUnmodifiableBuffer(it) }
+                .toList()
+    }
 
-    override fun match(data: ByteArray): Boolean = patternBytes.any { ArraysUtils.startWith(data, it) }
-
-    override fun getMaxLength(): Int = patternBytes.asSequence().map { it.size }.maxOrNull() ?: 0
 }

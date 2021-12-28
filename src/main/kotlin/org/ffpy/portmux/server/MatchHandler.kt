@@ -7,14 +7,12 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import org.ffpy.portmux.client.ClientHandler
 import org.ffpy.portmux.config.ForwardConfig
-import org.ffpy.portmux.config.ForwardConfigs
-import org.ffpy.portmux.util.ByteBufUtils
+import org.ffpy.portmux.protocol.Matcher
 import org.ffpy.portmux.util.DebugUtils
 import org.slf4j.LoggerFactory
 import java.net.SocketAddress
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-import kotlin.math.min
 
 /**
  * 匹配处理器
@@ -26,6 +24,11 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
 
     /** 首次读取超时检查定时器 */
     private var firstReadTimeout: ScheduledFuture<*>? = null
+
+    /** 待匹配数据 */
+    private var firstData: ByteBuf? = null
+
+    private val matcher = Matcher(config.protocols)
 
     override fun channelActive(ctx: ChannelHandlerContext) {
         log.info("${ctx.channel().remoteAddress()}新连接")
@@ -39,12 +42,14 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
 
         DebugUtils.logData(log, msg as ByteBuf, ctx)
 
-        val address = matchProtocol(msg, ctx)
-        if (address == null) {
+        val result = matcher.match(msg, ctx.channel().remoteAddress(), config.defaultAddress)
+        if (!result.finish) return
+
+        if (result.address == null) {
             log.info("默认转发地址为空，关闭连接")
             ctx.close()
         } else {
-            connectClient(address, msg, ctx.channel(), ctx)
+            connectClient(result.address, msg, ctx.channel(), ctx)
         }
     }
 
@@ -83,32 +88,13 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
             .connect(address)
             .addListener(ChannelFutureListener { f ->
                 if (f.isSuccess) {
-                    log.info("连接${address}成功")
-                    // 切换到转发模式
                     ctx.pipeline().replace(this, "forwardHandler", ForwardHandler(f.channel()))
-
                     msg?.let { ctx.pipeline().fireChannelRead(it).fireChannelReadComplete() }
                 } else {
                     log.error("连接${address}失败")
                     serverChannel.close()
                 }
             })
-    }
-
-    /**
-     * 匹配转发地址
-     */
-    private fun matchProtocol(buf: ByteBuf, ctx: ChannelHandlerContext): SocketAddress? {
-        val data = ByteBufUtils.getBytes(buf, min(config.maxLength, buf.readableBytes()))
-        for (protocol in config.protocols) {
-            if (protocol.match(data)) {
-                log.info("{}匹配协议: {}", ctx.channel().remoteAddress(), protocol.name)
-                return protocol.address
-            }
-        }
-
-        log.info("{}匹配失败，转发到默认地址", ctx.channel().remoteAddress())
-        return config.defaultAddress
     }
 
     /**

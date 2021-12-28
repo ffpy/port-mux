@@ -6,6 +6,7 @@ import io.netty.channel.*
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import org.ffpy.portmux.client.ClientHandler
+import org.ffpy.portmux.config.ForwardConfig
 import org.ffpy.portmux.config.ForwardConfigs
 import org.ffpy.portmux.util.ByteBufUtils
 import org.ffpy.portmux.util.DebugUtils
@@ -18,12 +19,10 @@ import kotlin.math.min
 /**
  * 匹配处理器
  */
-class MatchHandler : ChannelInboundHandlerAdapter() {
+class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAdapter() {
     companion object {
         private val log = LoggerFactory.getLogger(MatchHandler::class.java)
     }
-
-    private val config = ForwardConfigs.forwardConfig
 
     /** 首次读取超时检查定时器 */
     private var firstReadTimeout: ScheduledFuture<*>? = null
@@ -71,7 +70,7 @@ class MatchHandler : ChannelInboundHandlerAdapter() {
 
         log.info("${serverChannel.remoteAddress()} => $address")
 
-        val future = Bootstrap()
+        Bootstrap()
             .channel(NioSocketChannel::class.java)
             .group(serverChannel.eventLoop())
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.connectTimeout)
@@ -82,18 +81,18 @@ class MatchHandler : ChannelInboundHandlerAdapter() {
                 }
             })
             .connect(address)
+            .addListener(ChannelFutureListener { f ->
+                if (f.isSuccess) {
+                    log.info("连接${address}成功")
+                    // 切换到转发模式
+                    ctx.pipeline().replace(this, "forwardHandler", ForwardHandler(f.channel()))
 
-        future.addListener(ChannelFutureListener { f ->
-            if (f.isSuccess) {
-                // 切换到转发模式
-                ctx.pipeline().replace(this, "forwardHandler", ForwardHandler(f.channel()))
-
-                msg?.let { ctx.pipeline().fireChannelRead(it) }
-            } else {
-                log.error("连接${address}失败")
-                serverChannel.close()
-            }
-        })
+                    msg?.let { ctx.pipeline().fireChannelRead(it).fireChannelReadComplete() }
+                } else {
+                    log.error("连接${address}失败")
+                    serverChannel.close()
+                }
+            })
     }
 
     /**

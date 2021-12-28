@@ -29,7 +29,7 @@ object ForwardServer {
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childHandler(object : ChannelInitializer<SocketChannel>() {
                     override fun initChannel(ch: SocketChannel) {
-                        ch.pipeline().addLast(ServerHandler())
+                        ch.pipeline().addLast("matchHandler", MatchHandler())
                     }
                 })
 

@@ -19,6 +19,9 @@ class ForwardConfig(val config: Config) {
     val defaultAddress: SocketAddress? =
         if (config.default.isEmpty()) null else AddressUtils.parseAddress(config.default)
 
+    /** 连接超时时间 */
+    val connectTimeout = config.connectTimeout
+
     /** 首次读取超时的转发地址 */
     val timeoutAddress: SocketAddress? =
         if (config.readTimeoutAddress.isEmpty()) null else AddressUtils.parseAddress(config.readTimeoutAddress)

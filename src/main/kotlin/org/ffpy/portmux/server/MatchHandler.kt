@@ -25,9 +25,6 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
     /** 首次读取超时检查定时器 */
     private var firstReadTimeout: ScheduledFuture<*>? = null
 
-    /** 待匹配数据 */
-    private var firstData: ByteBuf? = null
-
     private val matcher = Matcher(config.protocols)
 
     override fun channelActive(ctx: ChannelHandlerContext) {
@@ -42,8 +39,15 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
 
         DebugUtils.logData(log, msg as ByteBuf, ctx)
 
+        // TODO 设置匹配超时时间
+        // TODO 这里有问题，错误数据没转发到默认地址
+
+        val startAt = System.nanoTime()
         val result = matcher.match(msg, ctx.channel().remoteAddress(), config.defaultAddress)
         if (!result.finish) return
+
+        val time = (System.nanoTime() - startAt) / 1000
+        log.info("匹配耗时: $time 微秒")
 
         if (result.address == null) {
             log.info("默认转发地址为空，关闭连接")

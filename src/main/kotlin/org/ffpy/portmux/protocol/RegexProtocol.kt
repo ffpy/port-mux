@@ -10,7 +10,9 @@ class RegexProtocol(config: ProtocolConfig) : BaseProtocol(config) {
     private val regexes = config.patterns.map { Regex(it) }
 
     override fun match(data: MatchData): MatchState {
-        if (data.buf.readableBytes() < config.minLen) return MatchState.MAYBE
+        TODO("")
+
+//        if (data.buf.readableBytes() < config.minLen) return MatchState.MAYBE
 
 
     }

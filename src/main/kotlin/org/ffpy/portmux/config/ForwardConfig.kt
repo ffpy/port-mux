@@ -12,8 +12,8 @@ class ForwardConfig(val config: Config) {
     /** 转发协议列表 */
     val protocols = config.protocols.map { Protocols.create(it) }
 
-    /** 匹配时需要的最大数据长度 */
-    val maxLength = protocols.asSequence().map { it.getMaxLength() }.maxOrNull() ?: 0
+//    /** 匹配时需要的最大数据长度 */
+//    val maxLength = protocols.asSequence().map { it.getMaxLength() }.maxOrNull() ?: 0
 
     /** 默认转发地址 */
     val defaultAddress: SocketAddress? =

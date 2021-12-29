@@ -10,6 +10,7 @@ import org.ffpy.portmux.config.Configs
 import org.ffpy.portmux.config.ForwardConfig
 import org.ffpy.portmux.protocol.FastMatcher
 import org.ffpy.portmux.protocol.Matcher
+import org.ffpy.portmux.protocol.Matcher2
 import org.ffpy.portmux.util.DebugUtils
 import org.slf4j.LoggerFactory
 import java.net.SocketAddress
@@ -27,7 +28,8 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
     /** 首次读取超时检查定时器 */
     private var firstReadTimeout: ScheduledFuture<*>? = null
 
-    private val matcher = FastMatcher()
+//    private val matcher = Matcher(config.protocols)
+    private val matcher = Matcher2()
 
     override fun channelActive(ctx: ChannelHandlerContext) {
         log.info("${ctx.channel().remoteAddress()}新连接")

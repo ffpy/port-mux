@@ -42,7 +42,7 @@
     },
     {
       name: "Windows远程连接",
-      type: "bytes",
+      type: "hex",
       addr: "127.0.0.1:33891",
       patterns: ["030000130ee00000000000010008000b000000"]
     }

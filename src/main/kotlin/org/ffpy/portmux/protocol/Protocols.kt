@@ -8,7 +8,9 @@ enum class Protocols(val type: String, private val factory: (ProtocolConfig) -> 
 
     REGEX("regex", { RegexProtocol(it) }),
 
-    BYTES("bytes", { BytesProtocol(it) })
+    BYTES("bytes", { BytesProtocol(it) }),
+
+    HEX("hex", { BytesProtocol(it) }),
 
     ;
 

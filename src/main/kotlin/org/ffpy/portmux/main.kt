@@ -2,6 +2,9 @@ package org.ffpy.portmux
 
 import org.ffpy.portmux.commandparam.CommandParams
 import org.ffpy.portmux.config.Configs
+import org.ffpy.portmux.config.ForwardConfig
+import org.ffpy.portmux.config.ForwardConfigs
+import org.ffpy.portmux.protocol.FastMatcher
 import org.ffpy.portmux.server.ForwardServer
 import org.ffpy.portmux.server.WatchServer
 import org.slf4j.Logger
@@ -20,6 +23,7 @@ fun main(vararg args: String) {
         if (CommandParams.param.watchConfig) {
             WatchServer.start(configPath)
         }
+
         ForwardServer.start()
     } catch (e: Exception) {
         log.error(e.message)

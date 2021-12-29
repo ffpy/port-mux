@@ -6,7 +6,7 @@ import org.ffpy.portmux.config.ProtocolConfig
 /**
  * 字节数组匹配
  */
-class BytesProtocol(config: ProtocolConfig) : BasePatternProtocol(config, getPatterns(config)) {
+class BytesProtocol(config: ProtocolConfig) : ByteBufPrefixProtocol(config, getPatterns(config)) {
 
     companion object {
         private fun getPatterns(config: ProtocolConfig) = config.patterns.asSequence()

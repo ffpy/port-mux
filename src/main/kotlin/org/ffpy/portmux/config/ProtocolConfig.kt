@@ -13,12 +13,6 @@ data class ProtocolConfig(
     /** 转发地址 */
     var addr: String = "",
 
-    /** 最短字节数，regex类型时有效 */
-    var minLen: Int = 0,
-
-    /** 最长字节数，regex类型时有效 */
-    var maxLen: Int = 0,
-
     /** 匹配字符串 */
     var patterns: List<String> = emptyList(),
 )

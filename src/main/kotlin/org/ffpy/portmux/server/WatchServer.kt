@@ -1,7 +1,6 @@
 package org.ffpy.portmux.server
 
-import org.ffpy.portmux.config.Configs
-import org.ffpy.portmux.config.ForwardConfigs
+import org.ffpy.portmux.config.ConfigManager
 import org.ffpy.portmux.util.StreamUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,8 +29,7 @@ object WatchServer {
                             try {
                                 Thread.sleep(500)
                                 log.info("监听到配置文件 $it 发生变化")
-                                Configs.init(configPath)
-                                ForwardConfigs.refreshForwardConfig()
+                                ConfigManager.init(configPath)
                                 log.info("更新配置成功")
                             } catch (e: Exception) {
                                 log.error("更新配置失败: ${e.message}")

@@ -1,4 +1,4 @@
-package org.ffpy.portmux.protocol
+package org.ffpy.portmux.matcher
 
 /**
  * 匹配状态

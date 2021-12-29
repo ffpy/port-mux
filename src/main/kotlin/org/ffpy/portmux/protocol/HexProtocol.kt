@@ -7,7 +7,7 @@ import org.ffpy.portmux.config.ProtocolConfig
 /**
  * 十六进制数据匹配
  */
-class HexProtocol(config: ProtocolConfig) : BasePatternProtocol(config, getPatterns(config)) {
+class HexProtocol(config: ProtocolConfig) : ByteBufPrefixProtocol(config, getPatterns(config)) {
 
     companion object {
         private fun getPatterns(config: ProtocolConfig) = config.patterns.asSequence()

@@ -1,21 +1,27 @@
 package org.ffpy.portmux.config
 
+import org.ffpy.portmux.logger.LoggerManger
 import org.ffpy.portmux.protocol.Protocols
 import org.ffpy.portmux.util.AddressUtils
-import org.ffpy.portmux.util.DebugUtils
 import org.ffpy.portmux.util.JsonUtils
 import java.nio.file.Path
+import java.util.*
+import kotlin.collections.ArrayList
+
+typealias OnChangedListener = (Config) -> Unit
 
 /**
  * 配置文件管理器
  */
-object Configs {
+object ConfigManager {
 
     /** 配置信息对象 */
     val config: Config
         get() = config_ ?: throw IllegalStateException("还没有初始化")
 
     private var config_: Config? = null
+
+    private val onChangedListeners: MutableList<OnChangedListener> = Collections.synchronizedList(ArrayList())
 
     /**
      * 加载配置文件
@@ -28,6 +34,14 @@ object Configs {
             throw Exception("找不到配置文件")
         }
         config_ = check(JsonUtils.parse(path, Config::class.java))
+        onChangedListeners.forEach { it(config) }
+    }
+
+    /**
+     * 添加配置文件改变监听器
+     */
+    fun addOnChangedListener(listener: OnChangedListener) {
+        onChangedListeners.add(listener)
     }
 
     /**
@@ -40,8 +54,8 @@ object Configs {
         if (!AddressUtils.validAddress(config.listen)) {
             throw Exception("listen地址格式不正确: ${config.listen}")
         }
-        if (config.debug.isNotEmpty()) {
-            DebugUtils.Type.of(config.debug)
+        if (config.logDataType.isNotEmpty()) {
+            LoggerManger.Type.of(config.logDataType)
         }
         if (config.default.isNotEmpty() && !AddressUtils.validAddress(config.default)) {
             throw Exception("default地址格式不正确: ${config.default}")
@@ -68,21 +82,12 @@ object Configs {
         if (protocol.type.isEmpty()) {
             throw Exception("protocol[${index}].type不能为空")
         }
-        val type = Protocols.values().asSequence()
+        Protocols.values().asSequence()
             .filter { it.type == protocol.type }
             .firstOrNull() ?: throw Exception("未知的protocol[${index}].type: ${protocol.type}")
 
         if (!AddressUtils.validAddress(protocol.addr)) {
             throw Exception("protocol[${index}].addr地址格式不正确: ${protocol.addr}")
-        }
-
-        if (type == Protocols.REGEX) {
-            if (protocol.minLen <= 0) {
-                throw Exception("protocol[${index}].min_len不能小于1")
-            }
-            if (protocol.maxLen <= 0) {
-                throw Exception("protocol[${index}].max_len不能小于1")
-            }
         }
 
         if (protocol.patterns.isEmpty()) {

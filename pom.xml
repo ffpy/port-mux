@@ -67,7 +67,7 @@
                     <finalName>port-mux</finalName>
                     <archive>
                         <manifest>
-                            <mainClass>org.ffpy.portmux.MainKt</mainClass>
+                            <mainClass>org.ffpy.portmux.AppKt</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

@@ -7,8 +7,11 @@ data class Config(
     /** 监听端口 */
     var listen: String = "",
 
-    /** 启用调试模式 */
-    var debug: String = "",
+    /** 日志级别 */
+    var log: String = "",
+
+    /** 调试模式 */
+    var logDataType: String = "",
 
     /** 默认转发地址 */
     var default: String = "",
@@ -22,7 +25,7 @@ data class Config(
     /** 读取超时的转发地址 */
     var readTimeoutAddress: String = "",
 
-    /** 匹配超时时间 */
+    /** 匹配超时时间(毫秒) */
     var matchTimeout: Int = 0,
 
     /** 转发配置 */

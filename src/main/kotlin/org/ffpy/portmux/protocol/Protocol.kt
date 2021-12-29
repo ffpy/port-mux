@@ -1,5 +1,7 @@
 package org.ffpy.portmux.protocol
 
+import org.ffpy.portmux.matcher.MatchData
+import org.ffpy.portmux.matcher.MatchState
 import java.net.SocketAddress
 
 /**

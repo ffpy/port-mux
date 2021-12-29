@@ -1,8 +1,10 @@
 {
   // 监听地址，不支持不停机更新
   listen: ":8200",
-  // 启用调试模式，打印转发数据，可选值: string, hex
-  debug: "string",
+  // 日志级别
+  log: "debug",
+  // 调试模式，打印转发数据，可选值: string, hex
+  log_data_type: "string",
   // 默认转发地址
   default: "127.0.0.1:8080",
   // 连接转发地址超时时间(毫秒)
@@ -19,14 +21,10 @@
     //    {
     //      // 名称
     //      name: "http",
-    //      // 类型，可选值: prefix(前缀匹配), regex(正则匹配), bytes(字节前缀匹配)
+    //      // 类型，可选值: prefix(字符串前缀匹配), hex(十六进制前缀匹配), bytes(字节数组前缀匹配)
     //      type: "regex",
     //      // 转发地址
     //      addr: "127.0.0.1:8080",
-    //      // 匹配最短字节数，regex类型才有效
-    //      min_len: 4,
-    //      // 匹配最长字节数，regex类型才有效
-    //      max_len: 7,
     //      // 匹配字符串
     //      patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
     //    },
@@ -39,13 +37,13 @@
     {
       name: "http",
       type: "prefix",
-      addr: "127.0.0.1:80",
+      addr: "192.168.31.63:80",
       patterns: ["GET ", "POST ", "PUT ", "DELETE ", "HEAD ", "OPTIONS "]
     },
     {
       name: "Windows远程连接",
       type: "hex",
-      addr: "127.0.0.1:33891",
+      addr: "127.0.0.1:3389",
       patterns: ["030000130ee00000000000010008000b000000"]
     }
   ]

@@ -1,7 +1,8 @@
-package org.ffpy.portmux.protocol
+package org.ffpy.portmux.matcher
 
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
+import org.ffpy.portmux.protocol.Protocol
 import org.slf4j.LoggerFactory
 import java.net.SocketAddress
 
@@ -20,7 +21,7 @@ class Matcher(
         for (protocol in protocols) {
             when (protocol.match(data)) {
                 MatchState.MATCH -> {
-                    log.info("{}匹配协议: {}", remoteAddress, protocol.name)
+                    log.info("{} 匹配协议: {}", remoteAddress, protocol.name)
                     return MatchResult(true, protocol.address)
                 }
                 MatchState.MAYBE -> {

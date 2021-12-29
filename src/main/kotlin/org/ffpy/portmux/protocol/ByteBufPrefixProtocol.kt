@@ -3,9 +3,17 @@ package org.ffpy.portmux.protocol
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufUtil
 import org.ffpy.portmux.config.ProtocolConfig
+import org.ffpy.portmux.matcher.MatchData
+import org.ffpy.portmux.matcher.MatchState
 import kotlin.math.min
 
-abstract class BasePatternProtocol(config: ProtocolConfig, val patterns: List<ByteBuf>) : BaseProtocol(config) {
+/**
+ * 基于ByteBuf的前缀匹配
+ */
+abstract class ByteBufPrefixProtocol(
+    config: ProtocolConfig,
+    private val patterns: List<ByteBuf>
+) : BaseProtocol(config) {
 
     override fun match(data: MatchData): MatchState {
         val buf = data.buf

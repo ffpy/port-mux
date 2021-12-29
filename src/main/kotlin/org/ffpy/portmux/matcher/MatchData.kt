@@ -1,4 +1,4 @@
-package org.ffpy.portmux.protocol
+package org.ffpy.portmux.matcher
 
 import io.netty.buffer.ByteBuf
 import java.nio.charset.StandardCharsets

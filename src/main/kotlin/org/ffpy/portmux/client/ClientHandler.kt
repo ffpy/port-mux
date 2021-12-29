@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
-import org.ffpy.portmux.util.DebugUtils
+import org.ffpy.portmux.logger.LoggerManger
 import org.slf4j.LoggerFactory
 
 /**
@@ -18,16 +18,16 @@ class ClientHandler(private val serverChannel: Channel) : ChannelInboundHandlerA
     }
 
     override fun channelActive(ctx: ChannelHandlerContext) {
-        log.info("${ctx.channel().remoteAddress()}连接成功")
+        log.info("${ctx.channel().remoteAddress()} 客户端连接成功")
     }
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.info("${ctx.channel().remoteAddress()}连接断开")
+        log.info("${ctx.channel().remoteAddress()} 客户端连接断开")
         serverChannel.close()
     }
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
-        DebugUtils.logData(log, msg as ByteBuf, ctx)
+        LoggerManger.logData(log, msg as ByteBuf, ctx.channel().remoteAddress())
         serverChannel.write(msg)
     }
 
@@ -40,7 +40,7 @@ class ClientHandler(private val serverChannel: Channel) : ChannelInboundHandlerA
     }
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-        log.error("${serverChannel.remoteAddress()}发生错误: ${cause.message}", cause)
+        log.error("${serverChannel.remoteAddress()} 发生错误: ${cause.message}", cause)
         ctx.close()
     }
 }

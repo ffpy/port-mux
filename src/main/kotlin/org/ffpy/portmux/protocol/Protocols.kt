@@ -6,8 +6,6 @@ enum class Protocols(val type: String, private val factory: (ProtocolConfig) -> 
 
     PREFIX("prefix", { PrefixProtocol(it) }),
 
-    REGEX("regex", { RegexProtocol(it) }),
-
     BYTES("bytes", { BytesProtocol(it) }),
 
     HEX("hex", { HexProtocol(it) }),

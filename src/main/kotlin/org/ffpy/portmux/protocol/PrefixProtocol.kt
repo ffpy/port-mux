@@ -13,7 +13,6 @@ class PrefixProtocol(config: ProtocolConfig) : BasePatternProtocol(config, getPa
             config.patterns.asSequence()
                 .map { it.toByteArray() }
                 .map { Unpooled.wrappedBuffer(it) }
-                .map { Unpooled.wrappedUnmodifiableBuffer(it) }
                 .toList()
     }
 

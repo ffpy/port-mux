@@ -5,12 +5,10 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.*
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
+import io.netty.handler.codec.ByteToMessageDecoder
 import org.ffpy.portmux.client.ClientHandler
-import org.ffpy.portmux.config.Configs
 import org.ffpy.portmux.config.ForwardConfig
-import org.ffpy.portmux.protocol.FastMatcher
 import org.ffpy.portmux.protocol.Matcher
-import org.ffpy.portmux.protocol.Matcher2
 import org.ffpy.portmux.util.DebugUtils
 import org.slf4j.LoggerFactory
 import java.net.SocketAddress
@@ -20,49 +18,45 @@ import java.util.concurrent.TimeUnit
 /**
  * 匹配处理器
  */
-class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAdapter() {
+class MatchHandler(private val config: ForwardConfig) : ByteToMessageDecoder() {
     companion object {
         private val log = LoggerFactory.getLogger(MatchHandler::class.java)
     }
 
-    /** 首次读取超时检查定时器 */
-    private var firstReadTimeout: ScheduledFuture<*>? = null
+    /** 读取超时定时器 */
+    private var readTimeout: ScheduledFuture<*>? = null
 
-//    private val matcher = Matcher(config.protocols)
-    private val matcher = Matcher2()
+    /** 匹配超时定时器 */
+    private var matchTimeout: ScheduledFuture<*>? = null
+
+    private val matcher = Matcher(config.protocols)
 
     override fun channelActive(ctx: ChannelHandlerContext) {
         log.info("${ctx.channel().remoteAddress()}新连接")
-
-        // 连接后一段时间内没有数据则直接转发到默认地址
-        createFirstTimeout(ctx)
+        createReadTimeout(ctx)
+        createMatchTimeout(ctx)
     }
 
-    override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
-        cancelFirstTimeout()
+    override fun decode(ctx: ChannelHandlerContext, msg: ByteBuf, out: MutableList<Any>) {
+        DebugUtils.logData(log, msg, ctx)
+        cancelReadTimeout()
 
-        DebugUtils.logData(log, msg as ByteBuf, ctx)
-
-        // TODO 设置匹配超时时间
-        // TODO 这里有问题，错误数据没转发到默认地址
-
-        val startAt = System.nanoTime()
         val result = matcher.match(msg, ctx.channel().remoteAddress(), config.defaultAddress)
         if (!result.finish) return
 
-        val time = (System.nanoTime() - startAt) / 1000
-        log.info("匹配耗时: $time 微秒")
+        cancelMatchTimeout()
 
         if (result.address == null) {
             log.info("默认转发地址为空，关闭连接")
             ctx.close()
         } else {
-            connectClient(result.address, msg, ctx.channel(), ctx)
+            connectClient(result.address, msg.retain(), ctx.channel(), ctx)
         }
     }
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        cancelFirstTimeout()
+        cancelReadTimeout()
+        cancelMatchTimeout()
         ctx.fireChannelInactive()
     }
 
@@ -78,7 +72,12 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
      * @param msg 首次读取的数据
      * @param serverChannel 源连接
      */
-    private fun connectClient(address: SocketAddress, msg: Any?, serverChannel: Channel, ctx: ChannelHandlerContext) {
+    private fun connectClient(
+        address: SocketAddress,
+        msg: ByteBuf?,
+        serverChannel: Channel,
+        ctx: ChannelHandlerContext
+    ) {
         if (!serverChannel.isActive) return
 
         log.info("${serverChannel.remoteAddress()} => $address")
@@ -97,7 +96,6 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
             .addListener(ChannelFutureListener { f ->
                 if (f.isSuccess) {
                     ctx.pipeline().replace(this, "forwardHandler", ForwardHandler(f.channel()))
-                    msg?.let { ctx.pipeline().fireChannelRead(it).fireChannelReadComplete() }
                 } else {
                     log.error("连接${address}失败")
                     serverChannel.close()
@@ -106,28 +104,51 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
     }
 
     /**
-     * 创建首次读取超时检查定时器
+     * 创建读取超时定时器
      */
-    private fun createFirstTimeout(ctx: ChannelHandlerContext) {
-        firstReadTimeout = ctx.channel().eventLoop().schedule({
-            val address = config.timeoutAddress
-            if (address == null) {
-                log.info("等待数据超时，没有配置超时转发地址，关闭连接")
-                ctx.close()
-            } else {
-                log.info("等待数据超时，转发到超时转发地址")
-                connectClient(address, null, ctx.channel(), ctx)
-            }
+    private fun createReadTimeout(ctx: ChannelHandlerContext) {
+        readTimeout = ctx.channel().eventLoop().schedule({
+            timeout("等待数据", ctx)
         }, config.config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
     }
 
     /**
-     * 关闭首次读取超时检查定时器
+     * 创建匹配超时定时器
      */
-    private fun cancelFirstTimeout() {
-        firstReadTimeout?.let {
+    private fun createMatchTimeout(ctx: ChannelHandlerContext) {
+        matchTimeout = ctx.channel().eventLoop().schedule({
+            timeout("匹配", ctx)
+        }, config.config.matchTimeout.toLong(), TimeUnit.MILLISECONDS)
+    }
+
+    private fun timeout(name: String, ctx: ChannelHandlerContext) {
+        val address = config.timeoutAddress
+        if (address == null) {
+            log.info("${name}超时，没有配置超时转发地址，关闭连接")
+            ctx.close()
+        } else {
+            log.info("${name}超时，转发到超时转发地址")
+            connectClient(address, null, ctx.channel(), ctx)
+        }
+    }
+
+    /**
+     * 关闭读取超时定时器
+     */
+    private fun cancelReadTimeout() {
+        readTimeout?.let {
             it.cancel(true)
-            firstReadTimeout = null
+            readTimeout = null
+        }
+    }
+
+    /**
+     * 关闭匹配超时定时器
+     */
+    private fun cancelMatchTimeout() {
+        matchTimeout?.let {
+            it.cancel(true)
+            matchTimeout = null
         }
     }
 }

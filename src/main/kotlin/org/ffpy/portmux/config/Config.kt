@@ -22,6 +22,9 @@ data class Config(
     /** 读取超时的转发地址 */
     var readTimeoutAddress: String = "",
 
+    /** 匹配超时时间 */
+    var matchTimeout: Int = 0,
+
     /** 转发配置 */
     var protocols: List<ProtocolConfig> = emptyList(),
 )

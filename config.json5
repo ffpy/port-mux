@@ -2,7 +2,7 @@
   // 监听地址，不支持不停机更新
   listen: ":8200",
   // 启用调试模式，打印转发数据，可选值: string, hex
-  debug: "",
+  debug: "string",
   // 默认转发地址
   default: "127.0.0.1:8080",
   // 连接转发地址超时时间(毫秒)
@@ -11,6 +11,8 @@
   read_timeout : 1000,
   // 读取超时的转发地址
   read_timeout_address: "127.0.0.1:5900",
+  // 匹配超时时间(毫秒)
+  match_timeout: 5000,
   // 转发协议配置
   protocols: [
     //    // 示例

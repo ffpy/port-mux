@@ -13,6 +13,7 @@ object DebugUtils {
 
     enum class Type(val code: String, private val action: (ByteBuf) -> String) {
         STRING("string", { it.toString(Charsets.UTF_8) }),
+        BYTE("byte", { ByteBufUtils.getBytes(it).contentToString() }),
         HEX("hex", { ByteBufUtil.hexDump(it) }),
         ;
         companion object {

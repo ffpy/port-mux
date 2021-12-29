@@ -1,6 +1,5 @@
 package org.ffpy.portmux.protocol
 
-import io.netty.buffer.ByteBufUtil
 import io.netty.buffer.Unpooled
 import org.ffpy.portmux.config.ProtocolConfig
 
@@ -11,9 +10,14 @@ class BytesProtocol(config: ProtocolConfig) : BasePatternProtocol(config, getPat
 
     companion object {
         private fun getPatterns(config: ProtocolConfig) = config.patterns.asSequence()
-            .map { ByteBufUtil.decodeHexDump(it) }
+            .map { pattern ->
+                pattern.split(",").asSequence()
+                    .map { it.trim() }
+                    .map { it.toByte() }
+                    .toList()
+                    .toByteArray()
+            }
             .map { Unpooled.wrappedBuffer(it) }
-            .map { Unpooled.wrappedUnmodifiableBuffer(it) }
             .toList()
     }
 }

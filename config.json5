@@ -2,7 +2,7 @@
   // 监听地址，不支持不停机更新
   listen: ":8200",
   // 启用调试模式，打印转发数据，可选值: string, hex
-  debug: "hex",
+  debug: "",
   // 默认转发地址
   default: "127.0.0.1:8080",
   // 连接转发地址超时时间(毫秒)
@@ -37,7 +37,7 @@
     {
       name: "http",
       type: "prefix",
-      addr: "192.168.31.63:80",
+      addr: "127.0.0.1:80",
       patterns: ["GET ", "POST ", "PUT ", "DELETE ", "HEAD ", "OPTIONS "]
     },
     {

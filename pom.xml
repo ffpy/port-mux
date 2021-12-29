@@ -15,6 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
+        <skipTests>true</skipTests>
     </properties>
 
     <repositories>
@@ -31,7 +32,7 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <version>1.6.10</version>
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -96,10 +97,11 @@
 
         <!-- JSON5 -->
         <dependency>
-            <groupId>com.github.anymaker</groupId>
-            <artifactId>tnjson</artifactId>
-            <version>2.0</version>
+            <groupId>blue.endless</groupId>
+            <artifactId>jankson</artifactId>
+            <version>1.2.1</version>
         </dependency>
+
 
         <!-- Gson -->
         <dependency>
@@ -131,12 +133,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.8</version>
+            <version>1.2.9</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.2.8</version>
+            <version>1.2.9</version>
         </dependency>
 
         <!-- Test -->

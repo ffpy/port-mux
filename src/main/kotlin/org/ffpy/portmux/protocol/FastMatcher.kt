@@ -28,6 +28,8 @@ class FastMatcher {
                 }
             }
 
+//            printTree(rootEntry, -1)
+
             return rootEntry
         }
 
@@ -36,7 +38,7 @@ class FastMatcher {
 
             for (pattern in protocol.patterns) {
                 val hex = Unpooled.wrappedBuffer(ByteBufUtil.decodeHexDump(pattern))
-                val leaf = buildTree(rootEntry, hex, 0)
+                val leaf = buildTree(rootEntry, hex, hex.readerIndex())
                 leaf.protocol = protocolData
             }
         }
@@ -46,20 +48,51 @@ class FastMatcher {
 
             for (pattern in protocol.patterns) {
                 val hex = Unpooled.wrappedBuffer(pattern.toByteArray(CharsetUtil.UTF_8))
-                val leaf = buildTree(rootEntry, hex, 0)
+                val leaf = buildTree(rootEntry, hex, hex.readerIndex())
                 leaf.protocol = protocolData
             }
         }
 
         private fun buildTree(layer: MatchEntry, hex: ByteBuf, index: Int): MatchEntry {
-            val node = hex.slice(index, 1)
+            val newIndex: Int
+            val node: ByteBuf
+
+//            val str = hex.toString(CharsetUtil.UTF_8)
+
+            if (index + 4 <= hex.writerIndex()) {
+                node = hex.slice(index, 4)
+                newIndex = index + 4
+            } else {
+                node = hex.slice(index, 1)
+                newIndex = index + 1
+            }
+
+//            val nodeStr = node.toString(CharsetUtil.UTF_8)
+//            val hexDump = ByteBufUtil.hexDump(node)
+
             val entry = layer.child.computeIfAbsent(node) { MatchEntry(it) }
 
-            if (index + 1 == hex.readableBytes()) {
+            if (newIndex >= hex.writerIndex()) {
                 return entry
             }
 
-            return buildTree(entry, hex, index + 1)
+            return buildTree(entry, hex, newIndex)
+        }
+
+        private fun printTree(entry: MatchEntry, level: Int) {
+            print(" ".repeat(level.coerceAtLeast(0)))
+            if (entry.key.readableBytes() != 0) {
+                val first = entry.key.getByte(entry.key.readerIndex()).toInt().toChar()
+                if (first.isLetterOrDigit()) {
+                    println(entry.key.toString(CharsetUtil.UTF_8))
+                } else {
+                    println(ByteBufUtil.hexDump(entry.key))
+                }
+            }
+
+            for (childEntry in entry.child) {
+                printTree(childEntry.value, level + 1)
+            }
         }
     }
 
@@ -71,18 +104,19 @@ class FastMatcher {
 
         val len = buf.readableBytes()
         for (i in 0 until len) {
+
+
             val node = buf.slice(currentIndex++, 1)
             currentLayer = currentLayer.child[node] ?: return MatchResult(true, null)
-            if (currentLayer.protocol != null) break
+
+            val protocol = currentLayer.protocol
+            if (protocol != null) {
+                log.info("{}匹配协议: {}", remoteAddress, protocol.name)
+                return MatchResult(true, protocol.address)
+            }
         }
 
-        val protocol = currentLayer.protocol
-        if (protocol != null) {
-            log.info("{}匹配协议: {}", remoteAddress, protocol.name)
-        } else {
-            log.info("{}匹配失败，转发到默认地址", remoteAddress)
-        }
-
-        return MatchResult(true, protocol?.address ?: defaultAddress)
+        log.info("{}匹配失败，转发到默认地址", remoteAddress)
+        return MatchResult(true, defaultAddress)
     }
 }

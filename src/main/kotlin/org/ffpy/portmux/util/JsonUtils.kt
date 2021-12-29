@@ -1,6 +1,6 @@
 package org.ffpy.portmux.util
 
-import a2u.tn.utils.json.TnJson
+import blue.endless.jankson.Jankson
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import java.io.IOException
@@ -32,14 +32,17 @@ object JsonUtils {
     /**
      * JSON字符串转对象
      *
-     * @param data JSON字符串
+     * @param json JSON字符串
      * @param type 要转换的对象类型
      * @param T 对象类型
      * @return 转换后的对象
      */
-    fun <T> parse(data: String, type: Class<T>): T {
-        val gson = createGson()
-        return gson.fromJson(gson.toJson(TnJson.parse(data)), type)
+    fun <T> parse(json: String, type: Class<T>): T {
+        val filteredJson = Jankson.builder()
+            .build()
+            .load(json)
+            .toJson()
+        return createGson().fromJson(filteredJson, type)
     }
 
     private fun createGson() = GsonBuilder()

@@ -33,13 +33,13 @@ Usage: java -jar port-mux.jar [options]
   // 监听地址，不支持动态更新
   listen: ":80",
   // 转发服务使用的线程数，默认为CPU核心数的2倍，不支持动态更新
-  thread_num: 4,
+//  thread_num: 4,
   // 日志级别
   log_level: "info",
   // 打印转发数据方式，可选值: string, byte, hex, pretty_hex
-  log_data_type: "",
-  // 打印转发数据的长度，默认为全部
-  log_data_len: 10,
+  log_data_type: "pretty_hex",
+  // 打印转发数据的长度，默认为1000
+  log_data_len: 1000,
   // 默认转发地址
   default: "127.0.0.1:8080",
   // 连接转发地址超时时间(毫秒)
@@ -103,6 +103,7 @@ Usage: java -jar port-mux.jar [options]
   min_len: 4,
   // 最大匹配字节数，这里的意思是只会把前8个字节的数据转为字符串进行匹配
   max_len: 8,
+  // 匹配正则表达式
   patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
 }
 ```
@@ -130,7 +131,7 @@ Usage: java -jar port-mux.jar [options]
   type: "hex",
   // 转发地址
   addr: "127.0.0.1:3389",
-  // 匹配前缀十六进制字节数组
+  // 匹配前缀十六进制字节
   patterns: ["030000130ee00000000000010008000b000000"]
 }
 ```
@@ -140,8 +141,10 @@ Usage: java -jar port-mux.jar [options]
 {
   // 日志级别
   log_level: "debug",
-  // 打印转发数据格式，可选值: string, byte, hex, pretty_hex
+  // 打印转发数据格式，默认为pretty_hex，可选值: string, byte, hex, pretty_hex
   log_data_type: "pretty_hex",
+  // 打印转发数据的长度，默认为1000
+  log_data_len: 1000,
 }
 ```
 1. `log_level` 设置为 `debug` 级别

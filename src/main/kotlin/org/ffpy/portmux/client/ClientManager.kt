@@ -5,7 +5,7 @@ import io.netty.channel.Channel
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
 import io.netty.channel.socket.SocketChannel
-import io.netty.channel.socket.nio.NioSocketChannel
+import org.ffpy.portmux.util.NettyUtils
 import java.net.SocketAddress
 
 /**
@@ -21,7 +21,7 @@ object ClientManager {
      * @param connectTimeout 连接超时时间（毫秒）
      */
     fun connect(serverChannel: Channel, address: SocketAddress, connectTimeout: Int) = Bootstrap()
-        .channel(NioSocketChannel::class.java)
+        .channel(NettyUtils.getSocketChannelClass())
         .group(serverChannel.eventLoop())
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout)
         .option(ChannelOption.SO_KEEPALIVE, true)

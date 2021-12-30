@@ -36,7 +36,7 @@ object LoggerManger {
     }
 
     private fun refreshLevel() {
-        setLevel(Level.toLevel(ConfigManager.config.logLevel))
+        setLevel(Level.toLevel(ConfigManager.config.logLevel, Level.INFO))
     }
 
     private fun setLevel(level: Level) {

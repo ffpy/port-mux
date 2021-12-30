@@ -3,12 +3,11 @@ package org.ffpy.portmux.server
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
-import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
-import io.netty.channel.socket.nio.NioServerSocketChannel
 import org.ffpy.portmux.config.ConfigManager
 import org.ffpy.portmux.config.ForwardConfigManager
 import org.ffpy.portmux.util.AddressUtils
+import org.ffpy.portmux.util.NettyUtils
 import org.slf4j.LoggerFactory
 
 /**
@@ -23,12 +22,12 @@ class ForwardServer {
      * 启动服务
      */
     fun start() {
-        val boosGroup = NioEventLoopGroup(1)
-        val workerGroup = NioEventLoopGroup(ConfigManager.config.threadNum)
+        val boosGroup = NettyUtils.createEventLoopGroup(1)
+        val workerGroup = NettyUtils.createEventLoopGroup(ConfigManager.config.threadNum)
         try {
             val future = ServerBootstrap()
                 .group(boosGroup, workerGroup)
-                .channel(NioServerSocketChannel::class.java)
+                .channel(NettyUtils.getServerSocketChannelClass())
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childHandler(object : ChannelInitializer<SocketChannel>() {
                     override fun initChannel(ch: SocketChannel) {

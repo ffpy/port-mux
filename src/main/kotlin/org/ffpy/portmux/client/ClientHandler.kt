@@ -17,10 +17,6 @@ class ClientHandler(private val serverChannel: Channel) : ChannelInboundHandlerA
         private val log = LoggerFactory.getLogger(ClientHandler::class.java)
     }
 
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        log.info("${ctx.channel().remoteAddress()} 客户端连接成功")
-    }
-
     override fun channelInactive(ctx: ChannelHandlerContext) {
         log.info("${ctx.channel().remoteAddress()} 客户端连接断开")
         serverChannel.close()

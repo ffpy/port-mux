@@ -1,10 +1,11 @@
 package org.ffpy.portmux.server
 
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.CompositeByteBuf
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelHandlerContext
-import io.netty.handler.codec.ByteToMessageDecoder
+import io.netty.channel.ChannelInboundHandlerAdapter
 import org.ffpy.portmux.client.ClientManager
 import org.ffpy.portmux.config.ForwardConfig
 import org.ffpy.portmux.logger.LoggerManger
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit
 /**
  * 匹配处理器
  */
-class MatchHandler(private val config: ForwardConfig) : ByteToMessageDecoder() {
+class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAdapter() {
     companion object {
         private val log = LoggerFactory.getLogger(MatchHandler::class.java)
     }
@@ -34,19 +35,27 @@ class MatchHandler(private val config: ForwardConfig) : ByteToMessageDecoder() {
     /** 是否正在连接客户端 */
     private var connecting = false
 
+    /** 已经读取到的所有数据 */
+    private lateinit var readBuf: CompositeByteBuf
+
     override fun channelActive(ctx: ChannelHandlerContext) {
         log.info("${ctx.channel().remoteAddress()} 新连接")
+        readBuf = ctx.alloc().compositeBuffer()
+
         createReadTimeout(ctx)
         createMatchTimeout(ctx)
     }
 
-    override fun decode(ctx: ChannelHandlerContext, msg: ByteBuf, out: MutableList<Any>) {
-        LoggerManger.logData(log, msg, ctx.channel().remoteAddress())
+    override fun channelRead(ctx: ChannelHandlerContext, msg: Any?) {
+        msg as ByteBuf
         cancelReadTimeout()
+        LoggerManger.logData(log, msg, ctx.channel().remoteAddress())
+
+        readBuf.addComponent(true, msg)
 
         if (connecting) return
 
-        val result = matcher.match(msg, ctx.channel().remoteAddress(), config.defaultAddress)
+        val result = matcher.match(readBuf, ctx.channel().remoteAddress(), config.defaultAddress)
         if (!result.finish) return
 
         cancelMatchTimeout()
@@ -93,7 +102,16 @@ class MatchHandler(private val config: ForwardConfig) : ByteToMessageDecoder() {
             }
 
             if (f.isSuccess) {
+                log.info("${f.channel().remoteAddress()} 客户端连接成功")
+
                 ctx.pipeline().replace(this, "forwardHandler", ForwardHandler(f.channel()))
+                if (readBuf.readableBytes() > 0) {
+                    ctx.pipeline()
+                        .fireChannelRead(readBuf)
+                        .fireChannelReadComplete()
+                } else {
+                    readBuf.release()
+                }
                 ctx.channel().config().isAutoRead = true
             } else {
                 log.error("连接${address}失败")

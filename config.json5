@@ -8,7 +8,7 @@
   // 打印转发数据格式，可选值: string, byte, hex, pretty_hex
   log_data_type: "string",
   // 打印转发数据的长度，默认为全部
-  log_data_len: 50,
+  log_data_len: 100,
   // 默认转发地址
   default: "127.0.0.1:8080",
   // 连接转发地址超时时间(毫秒)

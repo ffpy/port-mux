@@ -3,7 +3,6 @@ package org.ffpy.portmux.logger
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext
 import io.netty.buffer.ByteBuf
-import io.netty.buffer.ByteBufUtil
 import org.ffpy.portmux.App
 import org.ffpy.portmux.config.ConfigManager
 import org.slf4j.Logger
@@ -31,7 +30,7 @@ object LoggerManger {
 
         val debug = ConfigManager.config.logDataType
         if (debug.isNotEmpty()) {
-            val data = Type.of(debug).apply(buf)
+            val data = LogDataType.of(debug).apply(buf)
             log.debug("{} 发送数据({}): {}", address, buf.readableBytes(), data)
         }
     }
@@ -45,22 +44,4 @@ object LoggerManger {
         loggerContext.getLogger(PACKAGE_NAME).level = level
     }
 
-    enum class Type(val code: String, private val action: (ByteBuf) -> String) {
-        STRING("string", { it.toString(Charsets.UTF_8) }),
-        BYTE("byte", { ByteBufUtil.getBytes(it).contentToString() }),
-        HEX("hex", { ByteBufUtil.hexDump(it) }),
-        PRETTY_HEX("pretty_hex", { "\n" + ByteBufUtil.prettyHexDump(it) }),
-        ;
-
-        companion object {
-            fun of(code: String): Type {
-                for (value in values()) {
-                    if (value.code == code) return value
-                }
-                throw Exception("debug不支持此参数: $code")
-            }
-        }
-
-        fun apply(buf: ByteBuf) = action(buf)
-    }
 }

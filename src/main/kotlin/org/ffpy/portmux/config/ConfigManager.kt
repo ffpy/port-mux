@@ -1,12 +1,11 @@
 package org.ffpy.portmux.config
 
-import org.ffpy.portmux.logger.LoggerManger
+import org.ffpy.portmux.logger.LogDataType
 import org.ffpy.portmux.protocol.Protocols
 import org.ffpy.portmux.util.AddressUtils
 import org.ffpy.portmux.util.JsonUtils
 import java.nio.file.Path
 import java.util.*
-import kotlin.collections.ArrayList
 
 typealias OnChangedListener = (Config) -> Unit
 
@@ -55,7 +54,7 @@ object ConfigManager {
             throw Exception("listen地址格式不正确: ${config.listen}")
         }
         if (config.logDataType.isNotEmpty()) {
-            LoggerManger.Type.of(config.logDataType)
+            LogDataType.of(config.logDataType)
         }
         if (config.default.isNotEmpty() && !AddressUtils.validAddress(config.default)) {
             throw Exception("default地址格式不正确: ${config.default}")

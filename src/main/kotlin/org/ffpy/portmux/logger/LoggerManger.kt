@@ -8,6 +8,7 @@ import org.ffpy.portmux.config.ConfigManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.SocketAddress
+import kotlin.math.min
 
 object LoggerManger {
 
@@ -28,9 +29,11 @@ object LoggerManger {
     fun logData(log: Logger, buf: ByteBuf, address: SocketAddress?) {
         if (!log.isDebugEnabled) return
 
-        val debug = ConfigManager.config.logDataType
+        val config = ConfigManager.config
+        val debug = config.logDataType
         if (debug.isNotEmpty()) {
-            val data = LogDataType.of(debug).apply(buf)
+            val sliceBuf = buf.slice(buf.readerIndex(), min(buf.readableBytes(), config.logDataLen))
+            val data = LogDataType.of(debug).apply(sliceBuf)
             log.debug("{} 发送数据({}): {}", address, buf.readableBytes(), data)
         }
     }

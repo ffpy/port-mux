@@ -60,6 +60,7 @@ class MatchHandler(private val config: ForwardConfig) : ByteToMessageDecoder() {
     }
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
+        log.info("${ctx.channel().remoteAddress()} 连接断开")
         cancelReadTimeout()
         cancelMatchTimeout()
         ctx.fireChannelInactive()
@@ -81,6 +82,8 @@ class MatchHandler(private val config: ForwardConfig) : ByteToMessageDecoder() {
         connecting = true
         if (!serverChannel.isActive) return
 
+        ctx.channel().config().isAutoRead = false
+
         log.info("${serverChannel.remoteAddress()} => $address")
 
         ClientManager.connect(serverChannel, address, config.connectTimeout).addListener(ChannelFutureListener { f ->
@@ -91,6 +94,7 @@ class MatchHandler(private val config: ForwardConfig) : ByteToMessageDecoder() {
 
             if (f.isSuccess) {
                 ctx.pipeline().replace(this, "forwardHandler", ForwardHandler(f.channel()))
+                ctx.channel().config().isAutoRead = true
             } else {
                 log.error("连接${address}失败")
                 serverChannel.close()

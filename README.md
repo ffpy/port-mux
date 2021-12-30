@@ -30,12 +30,16 @@ Usage: java -jar port-mux.jar [options]
 程序配置文件
 ```json5
 {
-  // 监听地址，不支持不停机更新
+  // 监听地址，不支持动态更新
   listen: ":80",
+  // 转发服务使用的线程数，默认为CPU核心数的2倍，不支持动态更新
+  thread_num: 4,
   // 日志级别
   log_level: "info",
   // 打印转发数据方式，可选值: string, byte, hex, pretty_hex
   log_data_type: "",
+  // 打印转发数据的长度，默认为全部
+  log_data_len: 10,
   // 默认转发地址
   default: "127.0.0.1:8080",
   // 连接转发地址超时时间(毫秒)

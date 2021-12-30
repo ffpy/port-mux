@@ -18,6 +18,9 @@ data class Config(
     /** 调试模式 */
     var logDataType: String = "",
 
+    /** 打印转发数据的长度 */
+    var logDataLen: Int = Int.MAX_VALUE,
+
     /** 默认转发地址 */
     var default: String = "",
 

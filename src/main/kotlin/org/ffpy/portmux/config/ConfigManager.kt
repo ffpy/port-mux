@@ -30,7 +30,7 @@ object ConfigManager {
     @Throws(Exception::class)
     fun init(path: Path) {
         if (!path.toFile().exists()) {
-            throw Exception("找不到配置文件")
+            throw Exception("找不到配置文件: $path")
         }
         config_ = check(parseConfig(path))
         onChangedListeners.forEach { it(config) }

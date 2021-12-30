@@ -4,11 +4,11 @@
   // 转发服务使用的线程数，默认为CPU核心数的2倍，不支持动态更新
   thread_num: 4,
   // 日志级别，默认为info
-  log_level: "debug",
-  // 打印转发数据格式，可选值: string, byte, hex, pretty_hex
-  log_data_type: "string",
-  // 打印转发数据的长度，默认为全部
-  log_data_len: 100,
+  log_level: "info",
+  // 打印转发数据格式，默认为pretty_hex，可选值: string, byte, hex, pretty_hex
+  log_data_type: "pretty_hex",
+  // 打印转发数据的长度，默认为1000
+  log_data_len: 1000,
   // 默认转发地址
   default: "127.0.0.1:8080",
   // 连接转发地址超时时间(毫秒)
@@ -27,14 +27,6 @@
       addr: "192.168.31.63:22",
       patterns: ["SSH"]
     },
-//    {
-//      name: "http_regex",
-//      type: "regex",
-//      addr: "127.0.0.1:80",
-//      min_len: 4,
-//      max_len: 8,
-//      patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
-//    },
     {
       name: "http",
       type: "prefix",

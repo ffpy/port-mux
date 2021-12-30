@@ -43,13 +43,13 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
         readBuf = ctx.alloc().compositeBuffer()
 
         createReadTimeout(ctx)
-        createMatchTimeout(ctx)
     }
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any?) {
-        msg as ByteBuf
         cancelReadTimeout()
-        LoggerManger.logData(log, msg, ctx.channel().remoteAddress())
+        matchTimeout ?: createMatchTimeout(ctx)
+
+        LoggerManger.logData(log, msg as ByteBuf, ctx.channel().remoteAddress())
 
         readBuf.addComponent(true, msg)
 
@@ -126,7 +126,16 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
     private fun createReadTimeout(ctx: ChannelHandlerContext) {
         readTimeout = ctx.channel().eventLoop().schedule({
             cancelMatchTimeout()
-            timeout("等待数据", ctx)
+            if (connecting) return@schedule
+
+            val address = config.readTimeoutAddress
+            if (address == null) {
+                log.info("等待数据超时，没有配置超时转发地址，关闭连接")
+                ctx.close()
+            } else {
+                log.info("等待数据超时，转发到超时转发地址")
+                connectClient(address, ctx.channel(), ctx)
+            }
         }, config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
     }
 
@@ -136,20 +145,17 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
     private fun createMatchTimeout(ctx: ChannelHandlerContext) {
         matchTimeout = ctx.channel().eventLoop().schedule({
             cancelReadTimeout()
-            timeout("匹配", ctx)
-        }, config.matchTimeout.toLong(), TimeUnit.MILLISECONDS)
-    }
+            if (connecting) return@schedule
 
-    private fun timeout(name: String, ctx: ChannelHandlerContext) {
-        if (connecting) return
-        val address = config.readTimeoutAddress
-        if (address == null) {
-            log.info("${name}超时，没有配置超时转发地址，关闭连接")
-            ctx.close()
-        } else {
-            log.info("${name}超时，转发到超时转发地址")
-            connectClient(address, ctx.channel(), ctx)
-        }
+            val address = config.defaultAddress
+            if (address == null) {
+                log.info("匹配超时，没有配置默认转发地址，关闭连接")
+                ctx.close()
+            } else {
+                log.info("匹配超时，转发到默认转发地址")
+                connectClient(address, ctx.channel(), ctx)
+            }
+        }, config.matchTimeout.toLong(), TimeUnit.MILLISECONDS)
     }
 
     /**

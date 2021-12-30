@@ -1,6 +1,7 @@
 package org.ffpy.portmux.config
 
 import io.netty.util.NettyRuntime
+import org.ffpy.portmux.logger.LogDataType
 
 /**
  * 项目配置
@@ -16,10 +17,10 @@ data class Config(
     var logLevel: String = "",
 
     /** 调试模式 */
-    var logDataType: String = "",
+    var logDataType: String = LogDataType.PRETTY_HEX.code,
 
     /** 打印转发数据的长度 */
-    var logDataLen: Int = Int.MAX_VALUE,
+    var logDataLen: Int = 1000,
 
     /** 默认转发地址 */
     var default: String = "",

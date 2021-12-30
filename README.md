@@ -9,7 +9,7 @@
 - 运行环境: jdk8
 - 启动命令:
 ```
-java -Xmx10m -jar port-mux.jar
+java -Xmx20m -jar port-mux.jar
 ```
 - 帮助命令
 ```

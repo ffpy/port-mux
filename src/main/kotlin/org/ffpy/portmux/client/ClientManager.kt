@@ -2,6 +2,7 @@ package org.ffpy.portmux.client
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
+import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
 import io.netty.channel.socket.SocketChannel
@@ -13,6 +14,10 @@ import java.net.SocketAddress
  */
 object ClientManager {
 
+    private val bootstrap = Bootstrap()
+        .channel(NettyUtils.getSocketChannelClass())
+        .option(ChannelOption.SO_KEEPALIVE, true)
+
     /**
      * 连接客户端
      *
@@ -20,15 +25,13 @@ object ClientManager {
      * @param address 客户端地址
      * @param connectTimeout 连接超时时间（毫秒）
      */
-    fun connect(serverChannel: Channel, address: SocketAddress, connectTimeout: Int) = Bootstrap()
-        .channel(NettyUtils.getSocketChannelClass())
-        .group(serverChannel.eventLoop())
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout)
-        .option(ChannelOption.SO_KEEPALIVE, true)
-        .handler(object : ChannelInitializer<SocketChannel>() {
-            override fun initChannel(ch: SocketChannel) {
-                ch.pipeline().addLast(ClientHandler(serverChannel))
-            }
-        })
-        .connect(address)
+    fun connect(serverChannel: Channel, address: SocketAddress, connectTimeout: Int): ChannelFuture =
+        bootstrap.clone(serverChannel.eventLoop())
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout)
+            .handler(object : ChannelInitializer<SocketChannel>() {
+                override fun initChannel(ch: SocketChannel) {
+                    ch.pipeline().addLast(ClientHandler(serverChannel))
+                }
+            })
+            .connect(address)
 }

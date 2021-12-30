@@ -32,8 +32,16 @@ object ConfigManager {
         if (!path.toFile().exists()) {
             throw Exception("找不到配置文件")
         }
-        config_ = check(JsonUtils.parse(path, Config::class.java))
+        config_ = check(parseConfig(path))
         onChangedListeners.forEach { it(config) }
+    }
+
+    private fun parseConfig(path: Path): Config {
+        try {
+            return JsonUtils.parse(path, Config::class.java)
+        } catch (e: Exception) {
+            throw Exception("配置文件解析失败: ${e.message}", e)
+        }
     }
 
     /**
@@ -58,6 +66,9 @@ object ConfigManager {
         }
         if (config.logDataType.isNotEmpty()) {
             LogDataType.of(config.logDataType)
+        }
+        if (config.logDataLen < 1) {
+            throw Exception("log_data_len不能小于1")
         }
         if (config.default.isNotEmpty() && !AddressUtils.validAddress(config.default)) {
             throw Exception("default地址格式不正确: ${config.default}")

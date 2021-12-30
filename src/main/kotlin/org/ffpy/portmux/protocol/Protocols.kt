@@ -6,6 +6,13 @@ enum class Protocols(val type: String, private val factory: (ProtocolConfig) -> 
 
     PREFIX("prefix", { PrefixProtocol(it) }),
 
+    REGEX("regex", { RegexProtocol(it) }) {
+        override fun check(config: ProtocolConfig, index: Int) {
+            if (config.minLen <= 0) throw Exception("protocol[${index}].min_len必须大于0")
+            if (config.maxLen <= 0) throw Exception("protocol[${index}].max_len必须大于0")
+        }
+    },
+
     BYTES("bytes", { BytesProtocol(it) }),
 
     HEX("hex", { HexProtocol(it) }),
@@ -27,4 +34,10 @@ enum class Protocols(val type: String, private val factory: (ProtocolConfig) -> 
             throw Exception("未知的Protocol: ${config.type}")
         }
     }
+
+    /**
+     * 检查配置文件
+     * @throws Exception 如果配置文件有问题
+     */
+    open fun check(config: ProtocolConfig, index: Int) {}
 }

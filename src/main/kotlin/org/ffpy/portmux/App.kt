@@ -8,7 +8,7 @@ import org.ffpy.portmux.server.ForwardServer
 import org.ffpy.portmux.server.WatchServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.system.exitProcess
 
 class App
@@ -18,7 +18,7 @@ fun main(vararg args: String) {
 
     try {
         CommandParams.init(args)
-        val configPath = Path.of(CommandParams.param.config)
+        val configPath = Paths.get(CommandParams.param.config)
 
         ConfigManager.init(configPath)
         LoggerManger.init()

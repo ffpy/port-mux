@@ -4,8 +4,6 @@ import blue.endless.jankson.Jankson
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import java.io.IOException
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 
@@ -26,21 +24,9 @@ object JsonUtils {
      */
     @Throws(NoSuchFileException::class, IOException::class)
     fun <T> parse(path: Path, type: Class<T>): T {
-        return parse(Files.readString(path, StandardCharsets.UTF_8), type)
-    }
-
-    /**
-     * JSON字符串转对象
-     *
-     * @param json JSON字符串
-     * @param type 要转换的对象类型
-     * @param T 对象类型
-     * @return 转换后的对象
-     */
-    fun <T> parse(json: String, type: Class<T>): T {
         val filteredJson = Jankson.builder()
             .build()
-            .load(json)
+            .load(path.toFile())
             .toJson()
         return createGson().fromJson(filteredJson, type)
     }

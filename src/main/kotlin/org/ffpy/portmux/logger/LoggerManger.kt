@@ -12,7 +12,7 @@ import java.net.SocketAddress
 
 object LoggerManger {
 
-    private val PACKAGE_NAME = App::class.java.packageName
+    private val PACKAGE_NAME = App::class.java.`package`.name
 
     fun init() {
         refreshLevel()
@@ -37,7 +37,7 @@ object LoggerManger {
     }
 
     private fun refreshLevel() {
-        setLevel(Level.toLevel(ConfigManager.config.log))
+        setLevel(Level.toLevel(ConfigManager.config.logLevel))
     }
 
     private fun setLevel(level: Level) {
@@ -49,6 +49,7 @@ object LoggerManger {
         STRING("string", { it.toString(Charsets.UTF_8) }),
         BYTE("byte", { ByteBufUtil.getBytes(it).contentToString() }),
         HEX("hex", { ByteBufUtil.hexDump(it) }),
+        PRETTY_HEX("pretty_hex", { "\n" + ByteBufUtil.prettyHexDump(it) }),
         ;
 
         companion object {

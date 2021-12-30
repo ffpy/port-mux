@@ -82,9 +82,10 @@ object ConfigManager {
         if (protocol.type.isEmpty()) {
             throw Exception("protocol[${index}].type不能为空")
         }
-        Protocols.values().asSequence()
+        val type = Protocols.values().asSequence()
             .filter { it.type == protocol.type }
             .firstOrNull() ?: throw Exception("未知的protocol[${index}].type: ${protocol.type}")
+        type.check(protocol, index)
 
         if (!AddressUtils.validAddress(protocol.addr)) {
             throw Exception("protocol[${index}].addr地址格式不正确: ${protocol.addr}")

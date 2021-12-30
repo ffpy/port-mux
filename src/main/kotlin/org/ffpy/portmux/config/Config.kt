@@ -8,7 +8,7 @@ data class Config(
     var listen: String = "",
 
     /** 日志级别 */
-    var log: String = "",
+    var logLevel: String = "",
 
     /** 调试模式 */
     var logDataType: String = "",

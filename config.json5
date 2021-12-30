@@ -2,9 +2,9 @@
   // 监听地址，不支持不停机更新
   listen: ":8200",
   // 日志级别
-  log: "debug",
-  // 调试模式，打印转发数据，可选值: string, hex
-  log_data_type: "string",
+  log_level: "debug",
+  // 调试模式，打印转发数据，可选值: string, byte, hex, pretty_hex
+  log_data_type: "pretty_hex",
   // 默认转发地址
   default: "127.0.0.1:8080",
   // 连接转发地址超时时间(毫秒)
@@ -17,27 +17,24 @@
   match_timeout: 5000,
   // 转发协议配置
   protocols: [
-    //    // 示例
-    //    {
-    //      // 名称
-    //      name: "http",
-    //      // 类型，可选值: prefix(字符串前缀匹配), hex(十六进制前缀匹配), bytes(字节数组前缀匹配)
-    //      type: "regex",
-    //      // 转发地址
-    //      addr: "127.0.0.1:8080",
-    //      // 匹配字符串
-    //      patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
-    //    },
     {
       name: "ssh",
       type: "prefix",
       addr: "192.168.31.63:22",
       patterns: ["SSH"]
     },
+//    {
+//      name: "http_regex",
+//      type: "regex",
+//      addr: "127.0.0.1:80",
+//      min_len: 4,
+//      max_len: 8,
+//      patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
+//    },
     {
       name: "http",
       type: "prefix",
-      addr: "192.168.31.63:80",
+      addr: "127.0.0.1:80",
       patterns: ["GET ", "POST ", "PUT ", "DELETE ", "HEAD ", "OPTIONS "]
     },
     {

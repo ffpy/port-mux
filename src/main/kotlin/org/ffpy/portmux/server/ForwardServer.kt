@@ -37,6 +37,7 @@ class ForwardServer {
                 .bind(AddressUtils.parseAddress(ConfigManager.config.listen))
                 .sync()
 
+            log.info("当前模式为: " + NettyUtils.getMode())
             log.info("启动转发服务: ${ConfigManager.config.listen}")
 
             future.channel().closeFuture().sync()

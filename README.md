@@ -21,6 +21,9 @@ Usage: java -jar port-mux.jar [options]
     -config
       配置文件路径
       Default: config.json5
+    -epoll
+      是否使用epoll模式，epoll模式的性能更好，但是有的系统不支持这个模式
+      Default: false
     -watch-config
       是否监听配置文件改变
       Default: true

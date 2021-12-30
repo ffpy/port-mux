@@ -73,14 +73,17 @@ object ConfigManager {
         if (config.default.isNotEmpty() && !AddressUtils.validAddress(config.default)) {
             throw Exception("default地址格式不正确: ${config.default}")
         }
-        if (config.connectTimeout <= 0) {
-            throw Exception("connectTimeout不能小于1")
+        if (config.connectTimeout < 1) {
+            throw Exception("connect_timeout不能小于1")
         }
-        if (config.readTimeout <= 0) {
-            throw Exception("readTimeout不能小于1")
+        if (config.readTimeout < 1) {
+            throw Exception("read_timeout不能小于1")
         }
         if (config.readTimeoutAddress.isNotEmpty() && !AddressUtils.validAddress(config.readTimeoutAddress)) {
             throw Exception("read_timeout_address地址格式不正确")
+        }
+        if (config.matchTimeout < 1) {
+            throw Exception("match_timeout不能小于1")
         }
 
         config.protocols.forEachIndexed { index, protocol -> checkProtocol(index, protocol) }

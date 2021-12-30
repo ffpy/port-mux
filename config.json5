@@ -3,7 +3,7 @@
   listen: ":8200",
   // 日志级别
   log_level: "debug",
-  // 调试模式，打印转发数据，可选值: string, byte, hex, pretty_hex
+  // 打印转发数据格式，可选值: string, byte, hex, pretty_hex
   log_data_type: "pretty_hex",
   // 默认转发地址
   default: "127.0.0.1:8080",

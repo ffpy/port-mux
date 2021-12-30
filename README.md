@@ -31,10 +31,10 @@ Usage: java -jar port-mux.jar [options]
 ```json5
 {
   // 监听地址，不支持不停机更新
-  listen: ":8200",
+  listen: ":80",
   // 日志级别
   log_level: "info",
-  // 调试模式，打印转发数据，可选值: string, byte, hex, pretty_hex
+  // 打印转发数据方式，可选值: string, byte, hex, pretty_hex
   log_data_type: "",
   // 默认转发地址
   default: "127.0.0.1:8080",
@@ -51,21 +51,13 @@ Usage: java -jar port-mux.jar [options]
     {
       name: "ssh",
       type: "prefix",
-      addr: "192.168.31.63:22",
+      addr: "127.0.0.1:22",
       patterns: ["SSH"]
     },
-//    {
-//      name: "http_regex",
-//      type: "regex",
-//      addr: "127.0.0.1:80",
-//      min_len: 4,
-//      max_len: 8,
-//      patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
-//    },
     {
       name: "http",
       type: "prefix",
-      addr: "127.0.0.1:80",
+      addr: "127.0.0.1:8080",
       patterns: ["GET ", "POST ", "PUT ", "DELETE ", "HEAD ", "OPTIONS "]
     },
     {
@@ -144,7 +136,7 @@ Usage: java -jar port-mux.jar [options]
 {
   // 日志级别
   log_level: "debug",
-  // 调试模式，打印转发数据，可选值: string, byte, hex, pretty_hex
+  // 打印转发数据格式，可选值: string, byte, hex, pretty_hex
   log_data_type: "pretty_hex",
 }
 ```

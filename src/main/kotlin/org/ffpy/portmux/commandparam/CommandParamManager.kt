@@ -3,10 +3,10 @@ package org.ffpy.portmux.commandparam
 import com.beust.jcommander.JCommander
 import kotlin.system.exitProcess
 
-/***
- * 命令行参数解析
+/**
+ * 命令行参数解析管理器
  */
-object CommandParams {
+object CommandParamManager {
     /** 命令行参数对象 */
     val param: Param
         get() = param_ ?: throw IllegalStateException("还没有初始化")

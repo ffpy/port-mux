@@ -1,11 +1,16 @@
 package org.ffpy.portmux.config
 
+import io.netty.util.NettyRuntime
+
 /**
  * 项目配置
  */
 data class Config(
     /** 监听端口 */
     var listen: String = "",
+
+    /** 转发服务使用的线程数 */
+    var threadNum: Int = NettyRuntime.availableProcessors() * 2,
 
     /** 日志级别 */
     var logLevel: String = "",

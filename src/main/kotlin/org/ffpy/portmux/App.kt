@@ -1,6 +1,6 @@
 package org.ffpy.portmux
 
-import org.ffpy.portmux.commandparam.CommandParams
+import org.ffpy.portmux.commandparam.CommandParamManager
 import org.ffpy.portmux.config.ConfigManager
 import org.ffpy.portmux.config.ForwardConfigManager
 import org.ffpy.portmux.logger.LoggerManger
@@ -17,17 +17,18 @@ fun main(vararg args: String) {
     val log: Logger = LoggerFactory.getLogger("main")
 
     try {
-        CommandParams.init(args)
-        val configPath = Paths.get(CommandParams.param.config)
+        CommandParamManager.init(args)
+        val configPath = Paths.get(CommandParamManager.param.config)
 
         ConfigManager.init(configPath)
         LoggerManger.init()
         ForwardConfigManager.init()
-        if (CommandParams.param.watchConfig) {
-            WatchServer.start(configPath)
+
+        if (CommandParamManager.param.watchConfig) {
+            WatchServer().start(configPath)
         }
 
-        ForwardServer.start()
+        ForwardServer().start()
     } catch (e: Exception) {
         log.error(e.message)
         exitProcess(-1)

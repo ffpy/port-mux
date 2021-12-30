@@ -53,6 +53,9 @@ object ConfigManager {
         if (!AddressUtils.validAddress(config.listen)) {
             throw Exception("listen地址格式不正确: ${config.listen}")
         }
+        if (config.threadNum < 1) {
+            throw Exception("thread_num不能小于1")
+        }
         if (config.logDataType.isNotEmpty()) {
             LogDataType.of(config.logDataType)
         }

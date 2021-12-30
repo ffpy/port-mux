@@ -11,8 +11,11 @@ import kotlin.concurrent.thread
 /**
  * 配置文件监听服务
  */
-object WatchServer {
-    private val log: Logger = LoggerFactory.getLogger("WatchServer")
+class WatchServer {
+
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(WatchServer::class.java)
+    }
 
     fun start(configPath: Path) {
         val watcher = FileSystems.getDefault().newWatchService()

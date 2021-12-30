@@ -14,15 +14,17 @@ import org.slf4j.LoggerFactory
 /**
  * 转发服务
  */
-object ForwardServer {
-    private val log = LoggerFactory.getLogger(javaClass)
+class ForwardServer {
+    companion object {
+        private val log = LoggerFactory.getLogger(ForwardServer::class.java)
+    }
 
     /**
      * 启动服务
      */
     fun start() {
         val boosGroup = NioEventLoopGroup(1)
-        val workerGroup = NioEventLoopGroup()
+        val workerGroup = NioEventLoopGroup(ConfigManager.config.threadNum)
         try {
             val future = ServerBootstrap()
                 .group(boosGroup, workerGroup)

@@ -140,6 +140,7 @@ Usage: java -jar port-mux.jar [options]
 ```
 
 ## 调试
+调试功能让你能够打印转发过程中的数据内容
 ```json5
 {
   // 日志级别

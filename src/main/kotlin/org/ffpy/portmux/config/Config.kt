@@ -26,7 +26,7 @@ data class Config(
     var default: String = "",
 
     /** 连接超时时间(毫秒) */
-    var connectTimeout: Int = 0,
+    var connectTimeout: Int = 1000,
 
     /** 读取超时时间(毫秒) */
     var readTimeout: Int = 1000,

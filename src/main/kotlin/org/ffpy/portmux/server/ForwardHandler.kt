@@ -31,12 +31,12 @@ class ForwardHandler(private val clientChannel: Channel) : ChannelInboundHandler
     }
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.info("${ctx.channel().remoteAddress()} 连接断开")
+        log.info("${ctx.channel().remoteAddress()} disconnect")
         clientChannel.close()
     }
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-        log.error("${ctx.channel().remoteAddress()} 发生错误", cause)
+        log.error("${ctx.channel().remoteAddress()} error: ${cause.message}", cause)
         ctx.close()
     }
 }

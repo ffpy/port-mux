@@ -16,7 +16,7 @@ object ConfigManager {
 
     /** 配置信息对象 */
     val config: Config
-        get() = config_ ?: throw IllegalStateException("还没有初始化")
+        get() = config_ ?: throw IllegalStateException("Not initialized yet")
 
     private var config_: Config? = null
 
@@ -30,7 +30,7 @@ object ConfigManager {
     @Throws(Exception::class)
     fun init(path: Path) {
         if (!path.toFile().exists()) {
-            throw Exception("找不到配置文件: $path")
+            throw Exception("The configuration file is not found: $path")
         }
         config_ = check(parseConfig(path))
         onChangedListeners.forEach { it(config) }
@@ -40,7 +40,7 @@ object ConfigManager {
         try {
             return JsonUtils.parse(path, Config::class.java)
         } catch (e: Exception) {
-            throw Exception("配置文件解析失败: ${e.message}", e)
+            throw Exception("Parse configuration fail: ${e.message}", e)
         }
     }
 
@@ -59,31 +59,31 @@ object ConfigManager {
      */
     private fun check(config: Config): Config {
         if (!AddressUtils.validAddress(config.listen)) {
-            throw Exception("listen地址格式不正确: ${config.listen}")
+            throw Exception("The listen address is invalid: ${config.listen}")
         }
         if (config.threadNum < 1) {
-            throw Exception("thread_num不能小于1")
+            throw Exception("thread_num cannot be less than 1")
         }
         if (config.logDataType.isNotEmpty()) {
             LogDataType.of(config.logDataType)
         }
         if (config.logDataLen < 1) {
-            throw Exception("log_data_len不能小于1")
+            throw Exception("log_data_len cannot be less than 1")
         }
         if (config.default.isNotEmpty() && !AddressUtils.validAddress(config.default)) {
-            throw Exception("default地址格式不正确: ${config.default}")
+            throw Exception("default address is invalid: ${config.default}")
         }
         if (config.connectTimeout < 1) {
-            throw Exception("connect_timeout不能小于1")
+            throw Exception("connect_timeout cannot be less than 1")
         }
         if (config.readTimeout < 1) {
-            throw Exception("read_timeout不能小于1")
+            throw Exception("read_timeout cannot be less than 1")
         }
         if (config.readTimeoutAddress.isNotEmpty() && !AddressUtils.validAddress(config.readTimeoutAddress)) {
-            throw Exception("read_timeout_address地址格式不正确")
+            throw Exception("read_timeout_address is invalid")
         }
         if (config.matchTimeout < 1) {
-            throw Exception("match_timeout不能小于1")
+            throw Exception("match_timeout cannot be less than 1")
         }
 
         config.protocols.forEachIndexed { index, protocol -> checkProtocol(index, protocol) }
@@ -93,22 +93,22 @@ object ConfigManager {
 
     private fun checkProtocol(index: Int, protocol: ProtocolConfig) {
         if (protocol.name.isEmpty()) {
-            throw Exception("protocol[${index}].name不能为空")
+            throw Exception("protocol[${index}].name cannot be empty")
         }
         if (protocol.type.isEmpty()) {
-            throw Exception("protocol[${index}].type不能为空")
+            throw Exception("protocol[${index}].type cannot be empty")
         }
         val type = Protocols.values().asSequence()
             .filter { it.type == protocol.type }
-            .firstOrNull() ?: throw Exception("未知的protocol[${index}].type: ${protocol.type}")
+            .firstOrNull() ?: throw Exception("Unknown protocol[${index}].type: ${protocol.type}")
         type.check(protocol, index)
 
         if (!AddressUtils.validAddress(protocol.addr)) {
-            throw Exception("protocol[${index}].addr地址格式不正确: ${protocol.addr}")
+            throw Exception("protocol[${index}].addr is invalid: ${protocol.addr}")
         }
 
         if (protocol.patterns.isEmpty()) {
-            throw Exception("protocol[${index}].patterns不能为空")
+            throw Exception("protocol[${index}].patterns cannot be empty")
         }
     }
 }

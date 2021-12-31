@@ -39,7 +39,7 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
     private lateinit var readBuf: CompositeByteBuf
 
     override fun channelActive(ctx: ChannelHandlerContext) {
-        log.info("${ctx.channel().remoteAddress()} 新连接")
+        log.info("${ctx.channel().remoteAddress()} new connect")
         readBuf = ctx.alloc().compositeBuffer()
 
         createReadTimeout(ctx)
@@ -61,7 +61,7 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
         cancelMatchTimeout()
 
         if (result.address == null) {
-            log.info("默认转发地址为空，关闭连接")
+            log.info("No default forward address, close this connect")
             ctx.close()
         } else {
             connectClient(result.address, ctx.channel(), ctx)
@@ -69,14 +69,14 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
     }
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.info("${ctx.channel().remoteAddress()} 连接断开")
+        log.info("${ctx.channel().remoteAddress()} disconnect")
         cancelReadTimeout()
         cancelMatchTimeout()
         ctx.fireChannelInactive()
     }
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-        log.error("${ctx.channel().remoteAddress()}发生错误", cause)
+        log.error("${ctx.channel().remoteAddress()} error: ${cause.message}", cause)
         ctx.close()
     }
 
@@ -102,7 +102,7 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
             }
 
             if (f.isSuccess) {
-                log.info("${f.channel().remoteAddress()} 客户端连接成功")
+                log.info("${f.channel().remoteAddress()} client connect success")
 
                 ctx.pipeline().replace(this, "forwardHandler", ForwardHandler(f.channel()))
                 if (readBuf.readableBytes() > 0) {
@@ -114,7 +114,7 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
                 }
                 ctx.channel().config().isAutoRead = true
             } else {
-                log.error("连接${address}失败")
+                log.error("$address client connect fail")
                 serverChannel.close()
             }
         })
@@ -130,10 +130,10 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
 
             val address = config.readTimeoutAddress
             if (address == null) {
-                log.info("等待数据超时，没有配置超时转发地址，关闭连接")
+                log.info("Timeout for waiting data. Close this connection because no read timeout address is configured.")
                 ctx.close()
             } else {
-                log.info("等待数据超时，转发到超时转发地址")
+                log.info("Timeout for waiting data. It will be forwarded to the read timeout address.")
                 connectClient(address, ctx.channel(), ctx)
             }
         }, config.readTimeout.toLong(), TimeUnit.MILLISECONDS)
@@ -149,10 +149,10 @@ class MatchHandler(private val config: ForwardConfig) : ChannelInboundHandlerAda
 
             val address = config.defaultAddress
             if (address == null) {
-                log.info("匹配超时，没有配置默认转发地址，关闭连接")
+                log.info("Timeout for matching. Close this connection because no default address is configured.")
                 ctx.close()
             } else {
-                log.info("匹配超时，转发到默认转发地址")
+                log.info("Timeout for matching. It will be forwarded to the default address.")
                 connectClient(address, ctx.channel(), ctx)
             }
         }, config.matchTimeout.toLong(), TimeUnit.MILLISECONDS)

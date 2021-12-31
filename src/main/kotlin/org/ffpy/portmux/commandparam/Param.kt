@@ -9,12 +9,12 @@ data class Param(
     @Parameter(names = ["--help"], help = true)
     var help: Boolean = false,
 
-    @Parameter(names = ["-config"], description = "配置文件路径")
+    @Parameter(names = ["-config"], description = "The path of configuration file.")
     var config: String = "config.json5",
 
-    @Parameter(names = ["-watch-config"], description = "是否监听配置文件改变")
+    @Parameter(names = ["-watch-config"], description = "Listening for modification of configuration file.")
     var watchConfig: Boolean = true,
 
-    @Parameter(names = ["-epoll"], description = "是否使用epoll模式，epoll模式的性能更好，但是有的系统不支持这个模式")
+    @Parameter(names = ["-epoll"], description = "Whether to use epoll mode. Epoll mode has better performance, but some systems do not support this mode.")
     var epoll: Boolean = false,
 )

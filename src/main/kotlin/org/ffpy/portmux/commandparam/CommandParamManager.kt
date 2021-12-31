@@ -9,7 +9,7 @@ import kotlin.system.exitProcess
 object CommandParamManager {
     /** 命令行参数对象 */
     val param: Param
-        get() = param_ ?: throw IllegalStateException("还没有初始化")
+        get() = param_ ?: throw IllegalStateException("Not initialized yet")
 
     private var param_: Param? = null
 

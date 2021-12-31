@@ -8,8 +8,8 @@ enum class Protocols(val type: String, private val factory: (ProtocolConfig) -> 
 
     REGEX("regex", { RegexProtocol(it) }) {
         override fun check(config: ProtocolConfig, index: Int) {
-            if (config.minLen <= 0) throw Exception("protocol[${index}].min_len必须大于0")
-            if (config.maxLen <= 0) throw Exception("protocol[${index}].max_len必须大于0")
+            if (config.minLen <= 0) throw Exception("protocol[${index}].min_len must be greater than 0")
+            if (config.maxLen <= 0) throw Exception("protocol[${index}].max_len must be greater than 0")
         }
     },
 
@@ -31,7 +31,7 @@ enum class Protocols(val type: String, private val factory: (ProtocolConfig) -> 
                     return item.factory(config)
                 }
             }
-            throw Exception("未知的Protocol: ${config.type}")
+            throw Exception("Unknown protocol: ${config.type}")
         }
     }
 

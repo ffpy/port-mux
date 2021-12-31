@@ -35,7 +35,7 @@ enum class LogDataType(
             for (value in values()) {
                 if (value.code == code) return value
             }
-            throw Exception("log_data_type不支持此参数: $code")
+            throw Exception("log_data_type not support this type: $code")
         }
     }
 

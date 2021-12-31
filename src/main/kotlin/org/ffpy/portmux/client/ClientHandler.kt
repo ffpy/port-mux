@@ -18,7 +18,7 @@ class ClientHandler(private val serverChannel: Channel) : ChannelInboundHandlerA
     }
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.info("${ctx.channel().remoteAddress()} 客户端连接断开")
+        log.info("${ctx.channel().remoteAddress()} client disconnect")
         serverChannel.close()
     }
 
@@ -36,7 +36,7 @@ class ClientHandler(private val serverChannel: Channel) : ChannelInboundHandlerA
     }
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-        log.error("${serverChannel.remoteAddress()} 发生错误: ${cause.message}", cause)
+        log.error("${serverChannel.remoteAddress()} error: ${cause.message}", cause)
         ctx.close()
     }
 }

@@ -34,7 +34,7 @@ object LoggerManger {
         if (debug.isNotEmpty()) {
             val sliceBuf = buf.slice(buf.readerIndex(), min(buf.readableBytes(), config.logDataLen))
             val data = LogDataType.of(debug).apply(sliceBuf)
-            log.debug("{} 发送数据({}): {}", address, buf.readableBytes(), data)
+            log.debug("{} send({}): {}", address, buf.readableBytes(), data)
         }
     }
 

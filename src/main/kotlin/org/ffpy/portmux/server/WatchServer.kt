@@ -31,11 +31,11 @@ class WatchServer {
                         ?.let {
                             try {
                                 Thread.sleep(500)
-                                log.info("监听到配置文件 $it 发生变化")
+                                log.info("Updating config: $it")
                                 ConfigManager.init(configPath)
-                                log.info("更新配置成功")
+                                log.info("Update config successful")
                             } catch (e: Exception) {
-                                log.error("更新配置失败: ${e.message}")
+                                log.error("Update config fail: ${e.message}")
                             }
                         }
                 }
@@ -45,7 +45,7 @@ class WatchServer {
     private fun eventGenerator(watcher: WatchService): () -> MutableList<WatchEvent<*>> = {
         val key = watcher.take()
         val events = key.pollEvents()
-        if (!key.reset()) throw RuntimeException("监控配置文件出错")
+        if (!key.reset()) throw RuntimeException("Fail to watching configuration file")
         events
     }
 }

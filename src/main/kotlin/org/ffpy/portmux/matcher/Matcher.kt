@@ -21,7 +21,7 @@ class Matcher(
         for (protocol in protocols) {
             when (protocol.match(data)) {
                 MatchState.MATCH -> {
-                    log.info("{} 匹配协议: {}", remoteAddress, protocol.name)
+                    log.info("{} match protocol: {}", remoteAddress, protocol.name)
                     return MatchResult(true, protocol.address)
                 }
                 MatchState.MAYBE -> {
@@ -34,7 +34,7 @@ class Matcher(
         }
 
         if (maybeList.isEmpty()) {
-            log.info("{}匹配失败，转发到默认地址", remoteAddress)
+            log.info("{} match fail, forward to default address", remoteAddress)
             return MatchResult(true, defaultAddress)
         }
 

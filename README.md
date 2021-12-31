@@ -32,7 +32,7 @@ Usage: java -jar port-mux.jar [options]
       Whether to use epoll mode. Epoll mode has better performance, but some systems do not support this mode.
       Default: false
     -watch-config
-      Litening for modification of configuration file.
+      Listening for modification of configuration file.
       Default: true
 ```
 

@@ -2,48 +2,45 @@
 [![EN doc](https://img.shields.io/badge/document-English-blue.svg)](README.md)
 [![CN doc](https://img.shields.io/badge/文档-中文版-blue.svg)](README_zh_CN.md)
 
-This is a proxy server that allows you to connect SSH, HTTP, VNC and other services on same port.
+这是一个代理服务工具，让你可以在同一个端口上连接SSH、HTTP、VNC等多种服务。
 
-This project refers to the idea of [switcher](https://github.com/jackyspy/switcher), 
-and is implemented by Kotlin and Netty.
+此项目参考了[switcher](https://github.com/jackyspy/switcher) 项目的思想，用 Kotlin 和 Netty 来实现。
 
-By configuring in the configuration file, the traffic on the listening port can be easily forwarded to
-SSH, HTTP, VNC and other ports. This tool can be used for NAT traversal, limited number of outer net, etc.
+通过在配置文件中进行配置，即可方便地把监听端口上的流量转发到SSH、HTTP、VNC等端口上。可用于内网穿透、外网端口数受限等情况。
 
-This tool also supports listening to the modification of the configuration file, 
-so the program configuration can be updated without restarting the program.
+此工具还支持监听配置文件的修改，因此不需要重启程序即可更新程序配置。
 
-## Usage
-- Requires: JDK8 or later
-- Start command:
+## 用法
+- 运行环境: JDK8以上
+- 启动命令:
 ```bash
 java -Xmx20m -jar port-mux.jar
 ```
-- Help
+- 帮助
 ```
 Usage: java -jar port-mux.jar [options]
   Options:
     --help
 
     -config
-      The path of configuration file.
+      配置文件路径
       Default: config.json5
     -epoll
-      Whether to use epoll mode. Epoll mode has better performance, but some systems do not support this mode.
+      是否使用epoll模式，epoll模式的性能更好，但是有的系统不支持这个模式
       Default: false
     -watch-config
-      Litening for modification of configuration file.
+      是否监听配置文件改变
       Default: true
 ```
 
 ### config.json5
-The configuration file for this tool.
+程序配置文件
 
-The following is an example, listening on port 8200
-- SSH traffic is forwarded to port 22
-- HTTP traffic is forwarded to port 8080
-- RDP traffic is forwarded to port 3389
-- Other traffic is forwarded to port 8080
+下面是一个示例，监听 8200 端口
+- SSH 流量转发到 22 端口
+- HTTP 流量转发到 8080 端口
+- Windows 远程桌面流量转发到 3389 端口
+- 其他流量转发到 8080 端口
 ```json5
 {
   listen: ":8200",
@@ -63,7 +60,7 @@ The following is an example, listening on port 8200
       patterns: ["GET ", "POST ", "PUT ", "DELETE ", "HEAD ", "OPTIONS "]
     },
     {
-      name: "RDP",
+      name: "Windows远程桌面",
       type: "hex",
       addr: "127.0.0.1:3389",
       patterns: ["030000130ee00000000000010008000b000000"]
@@ -72,30 +69,30 @@ The following is an example, listening on port 8200
 }
 ```
 
-#### All items of configuration
+#### 全部配置项
 ```json5
 {
-  // Listening address. Dynamic update is not supported for this
+  // 监听地址，不支持动态更新
   listen: ":80",
-  // The number of threads used by the forwarding service. The default value is twice the number of cpu cores. Dynamic update is not supported for this
+  // 转发服务使用的线程数，默认为CPU核心数的2倍，不支持动态更新
   thread_num: 4,
-  // The level for logging. The default value is info
+  // 日志级别
   log_level: "info",
-  // The format for printing data. The optional values are string, byte, hex, pretty_hex
+  // 打印转发数据方式，可选值: string, byte, hex, pretty_hex
   log_data_type: "pretty_hex",
-  // The length of printed data. The default value is 1000
+  // 打印转发数据的长度，默认为1000
   log_data_len: 1000,
-  // Default forwarding address
+  // 默认转发地址
   default: "127.0.0.1:8080",
-  // Timeout for connecting to forwarding address. The default value is 1000
+  // 连接转发地址超时时间(毫秒)，默认为1000
   connect_timeout: 1000,
-  // Timeout for reading data. The default value is 1000
+  // 读取超时时间(毫秒)，默认为1000
   read_timeout : 1000,
-  // The forwarding address if read timeout
+  // 读取超时的转发地址
   read_timeout_address: "127.0.0.1:5900",
-  // Timeout for protocol matching. The default value is 5000
+  // 匹配超时时间(毫秒)，默认为5000
   match_timeout: 5000,
-  // The list of forwarding protocols
+  // 转发协议配置
   protocols: [
     {
       name: "ssh",
@@ -110,7 +107,7 @@ The following is an example, listening on port 8200
       patterns: ["GET ", "POST ", "PUT ", "DELETE ", "HEAD ", "OPTIONS "]
     },
     {
-      name: "RDP",
+      name: "Windows远程桌面",
       type: "hex",
       addr: "127.0.0.1:3389",
       patterns: ["030000130ee00000000000010008000b000000"]
@@ -119,36 +116,36 @@ The following is an example, listening on port 8200
 }
 ```
 
-## Protocol type
+## 匹配类型
 ### prefix
 ```json5
 {
-  // The name of protocol
+  // 协议名称
   name: "ssh",
-  // The type of protocol
+  // 匹配类型
   type: "prefix",
-  // Forwarding address
+  // 转发地址
   addr: "127.0.0.1:22",
-  // The prefix string for matching
+  // 匹配前缀字符串
   patterns: ["SSH"]
 }
 ```
 
 ### regex
-Note：The regex type does not support multiple matches. It only matches the data received for the first time.
+注意：regex 类型不支持多次匹配，只会匹配第一次接收到的数据
 ```json5
 {
-  // The name of protocol
+  // 协议名称
   name: "http_regex",
-  // The type of protocol
+  // 匹配类型
   type: "regex",
-  // Forwarding address
+  // 转发地址
   addr: "127.0.0.1:80",
-  // The minimum number of matching bytes, which means that data less than 4 bytes will fail to match
+  // 最小匹配字节数，这里的意思是小于4字节的数据直接算匹配失败
   min_len: 4,
-  // The maximum number of matching bytes, which means that only the first 8 bytes of data will be converted to a string for matching
+  // 最大匹配字节数，这里的意思是只会把前8个字节的数据转为字符串进行匹配
   max_len: 8,
-  // The regular expression for matching
+  // 匹配正则表达式
   patterns: ["^(GET|POST|PUT|DELETE|HEAD|OPTIONS) "]
 }
 ```
@@ -156,13 +153,13 @@ Note：The regex type does not support multiple matches. It only matches the dat
 ### bytes
 ```json5
 {
-  // The name of protocol
-  name: "RDP",
-  // The type of protocol
+  // 协议名称
+  name: "Windows远程连接",
+  // 匹配类型
   type: "bytes",
-  // Forwarding address
+  // 转发地址
   addr: "127.0.0.1:3389",
-  // The byte array value for matching
+  // 匹配前缀字节数组
   patterns: ["3, 0, 0, 19, 14, -32, 0, 0, 0, 0, 0, 1, 0, 8, 0, 11, 0, 0, 0"]
 }
 ```
@@ -170,31 +167,31 @@ Note：The regex type does not support multiple matches. It only matches the dat
 ### hex
 ```json5
 {
-  // The name of protocol
-  name: "RDP",
-  // The type of protocol
+  // 协议名称
+  name: "Windows远程连接",
+  // 匹配类型
   type: "hex",
-  // Forwarding address
+  // 转发地址
   addr: "127.0.0.1:3389",
-  // The hex bytes for matching
+  // 匹配前缀十六进制字节
   patterns: ["030000130ee00000000000010008000b000000"]
 }
 ```
 
-## Debug
-You can print the data content in the forwarding process.
+## 调试
+调试功能让你能够打印转发过程中的数据内容
 ```json5
 {
-  // The level for logging
+  // 日志级别
   log_level: "debug",
-  // The format for printing data. The optional values are string, byte, hex, pretty_hex
+  // 打印转发数据格式，默认为pretty_hex，可选值: string, byte, hex, pretty_hex
   log_data_type: "pretty_hex",
-  // The length of printed data. The default value is 1000
+  // 打印转发数据的长度，默认为1000
   log_data_len: 1000,
 }
 ```
-1. Set `log_level` to `debug` level.
-2. Set `log_data_type` to the print format you want.
+1. `log_level` 设置为 `debug` 级别
+2. 设置 `log_data_type` 为你想要的打印格式
 
 ### log_data_type
 #### string

@@ -2,7 +2,7 @@
   // 监听地址，不支持动态更新
   listen: ":8200",
   // 转发服务使用的线程数，默认为CPU核心数的2倍，不支持动态更新
-//  thread_num: 4,
+  thread_num: 4,
   // 日志级别，默认为info
   log_level: "info",
   // 打印转发数据格式，默认为pretty_hex，可选值: string, byte, hex, pretty_hex
@@ -34,7 +34,7 @@
       patterns: ["GET ", "POST ", "PUT ", "DELETE ", "HEAD ", "OPTIONS "]
     },
     {
-      name: "Windows远程连接",
+      name: "Windows远程桌面",
       type: "hex",
       addr: "127.0.0.1:3389",
       patterns: ["030000130ee00000000000010008000b000000"]
